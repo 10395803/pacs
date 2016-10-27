@@ -1,5 +1,5 @@
 //
-//! @brief  A test of the ckass Chrono and of polynomial evaluation
+//! @brief  A test of the class Chrono and of polynomial evaluation
 //! @detail We compare the evaluation of a polygon with the standard rule
 //!         against Horner's rule.
 
@@ -16,7 +16,7 @@ int main() {
 
   vector<double>a;
   int n;
-  cout<<"dammi il grado del polinomio"<<endl;
+  cout<<"Give me the degree of the polynomial"<<endl;
   cout<<"=>";
   cin >>n;
   a.reserve(n+1);
@@ -44,7 +44,7 @@ int main() {
   double x=startx;
   for (int i=0; i <= numinterval; ++i,x+=interval)points.push_back(x);
   // to make the game fair I fill the vector results
-  // so both methods start in thw same situation
+  // so both methods start in the same situation
   vector<double> result(points.size());
   Chrono temporizzatore;
   temporizzatore.start();

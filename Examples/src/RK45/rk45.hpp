@@ -6,11 +6,11 @@
 #include <stdexcept>
 namespace ODE
 {
-  //! Defailt max number of iteration
+  //! Default max number of iteration
   constexpr std::size_t MAX_STEPS=10000; 
   //! Single step of RK
   /*!
-    for the solution of \f$ dy/dt=f(y(y),t)
+    for the solution of \f$ dy/dt=f(y(t),t)
 
     The routine returns the error as the absoute value of the
     difference between the fifth order and fourth order
@@ -48,6 +48,7 @@ namespace ODE
     @param final_error Desired error at t=T
     @param status: 0=Ok 1=initial step too small; 2 number of steps exceeded; 
                    3 hmin reached, cannot guarantee error
+    @param maxStesps: maximum number of iterations
     @return the solution as pairs t,y
    */
   std::vector<std::pair<double,double>> 

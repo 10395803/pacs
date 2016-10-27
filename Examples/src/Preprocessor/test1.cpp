@@ -1,3 +1,5 @@
+#include "test1.hpp"
+
 #define PIPPO pippo
 
 #ifdef PIPPO

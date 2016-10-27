@@ -1,0 +1,78 @@
+>>> Appunti su static library, shared library, factory, singleton
+
+# Opzione -l: istruzione per il linker per dirgli quale libreria ci serve per il nostro programma
+--> IMPORTANTE!!! I simboli vengono risolti dal linker nell'ordine con cui si presentano nei file oggetto quindi è importante l'ordine di linkaggio
+Es: supponiamo che il nostro programma necessiti di una libreria mylib1 e questa a sua volta di mylib2
+	-lmylib2 -lmylib1 --> KO!
+	-lmylib1 -lmylib2 --> OK!
+
+# Opzione -L: per specificare il percorso ad una cartella (che contiene una libreria da linkare) non presenti nei percorsi di ricerca del linker
+--> IMPORTANTE!!! Il percorso specificato non viene passato al loader, cioè l'opzione -L serve solo per il linker, non per il loader
+
+# Ordine di ricerca del linker:
+	1. Cartelle indicate dall'opzione -L
+	2. /usr/local/lib
+	3. /usr/lib
+	4. /lib
+	5. Se specifichiamo il percorso completo ad una libreria
+
+# Ordine di ricerca del loader:
+	1. Cartelle indicate con l'opzione -Wl,-rpath=PATH durante la fase 	   di linking
+	--> le cartelle devono essere separate da :
+	2. Cartelle contenute nella variabile d'ambiente LD_LIBRARY_PATH
+	--> per aggiungere delle cartelle a questa variabile:
+	    A. export LD_LIBRARY_PATH+=dir1:dir2
+	    B. export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:dir1:dir2
+	3. Cartelle contenute in /etc/ld.so.cache
+	--> file creato dal comando ldconfig analizzando il contenuto di 	    /etc/ld.so.conf e/o dei file contenuti in /ets/ld.so.conf.d
+	4. /usr/lib
+	5. /lib
+
+# Quando creiamo una libreria dinamica con l'opzione -shared, possiamo linkare tutte le librerie (statiche o dinamiche) che ci servono
+--> In questo modo, quando andremo ad utilizzare la libreria nel nostro programma non dovremo linkare anche tutte le librerie necessarie alla libreria ma solo la libreria di nostro diretto interesse
+
+# Schema dei nomi di una libreria dinamica:
+	A. generic name o linking name: lib<NAME>.so 
+	--> opzione per il linker: -l<NAME>
+	B. soname: lib<NAME>.so.version
+	--> in genere, version è un intero
+	C. real name: lib<NAME>.so.version.release
+	--> in genere, release è un intero o una coppia di interi 	    (release + bugfix)
+
+# Differenza tra versione e release: release differenti di una stessa versione possono modificare l'implementazione ma non l'interfaccia pubblica, tra una versione e l'altra l'interfaccia pubblica può cambiare
+
+# -Wl,-soname,SONAME: questa opzione inserisce all'interno della libreria dinamica un simbolo particolare che indica il SONAME
+--> il loader andrà alla ricerca del soname, non del linking name
+
+# Includere i file header di una libreria permette al compiler di verificare che la sintassi utilizzata nel programma sia concorde con l'interfaccia pubblica fornita dalla libreria.
+Quando chiamiamo il linker, questo va a cercare il linking name, verifica che la libreria risolva i simboli ancora non definiti e inserisce il soname all'interno dell'eseguibile.
+Al run-time, il loader va alla ricerca del soname e carica i simboli (richiesti dal programma) forniti dalla libreria  
+
+# Utilizzo dei simbolyc links: creiamo due simbolyc links
+1. Prima ne creiamo uno chiamato come il soname che punta al real name (cioè al file che ho effettivamente compilato e linkato)
+2. Ne creiamo un secondo chiamato come il linking name e che punta al precedente symbolic links
+--> Il linker trova 2, inserisce il soname a cui punta all'interno dell'eseguibile, il loader poi va alla ricerca del soname e trova 1 che punta al file effettivamente salvato da qualche parte nella memoria 
+--> E' quindi 1 che si deve trovare nei percorsi di ricerca del loader
+--> Vantaggi:
+	A. Se cambio release: devo reindirizzare solo 1
+	B. Se cambio versione: devo creare un nuovo 1 che punti al nuovo 	file libreria e poi reindirizzo 2 al nuovo 1
+	--> 2 una volta creato non lo modifico più, al più lo reindirizzo
+
+# Per utilizzare dynamic loading:
+1. Nel main: #include <dlfcn.h>
+2. Durante il linking: -ldl
+
+# Per caricare dinamicamente (cioè al run-time) una shared library indicata nella stringa "library":
+	void * lib_handle;
+	lib_handle = dlopen(library.c_str(),RTLD_LAZY);
+--> dlopen riceve in ingresso una stringa di C (ecco perchè c_str()) contenente il nome della libreria e restituisce un puntatore void ad essa se la trova, un null pointer in caso di errore
+--> Per cercare la libreria indicata, dlopen segue le stesse regole del loader
+--> RTLD_LAZY: macro definita in dlfcn.h per dire che vogliamo caricare i simboli dalla libreria solo quando effettivamente utilizzati
+--> Macro alternativa per risolvere tutti i simboli istantaneamente: RTLD_NOW
+
+# Per caricare dinamicamente un particolare simbolo (funzione) il cui nome è contenuto nella stringa "integrands":
+	void * ip = dlsym(lib_handle,integrands.c_str());
+	auto fp = reinterpret_cast<double(*)<double const &>>(ip);
+--> dlsym riceve in ingresso un puntatore alla libreria contenente il simbolo ed una stringa C contenente il nome del simbolo e restituisce un puntatore void al simbolo se lo trova, un null pointer altrimenti
+--> Qui è importante usare extern "C" nell'implementazione della libreria
+--> Supponendo di voler caricare una funzione che riceve un double const & e restituisce un double, dobbiamo convertire il puntatore restituito da dlsym tramite reinterpret_cast

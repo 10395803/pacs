@@ -13,7 +13,7 @@ int main(){
     std::exit(1);
   }
 
-  std::cout<<"cube (1) ore square (2)?"<<std::endl;
+  std::cout<<"cube (1) or square (2)?"<<std::endl;
   int answer;
   std::cin>>answer;
   Fun fn;

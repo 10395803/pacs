@@ -1,7 +1,7 @@
 #include<iostream>
 #include "class_ws.hpp"
 #include<limits>
-//! Initialization of static variable
+//! Initialization of static variables
 double WS::sum(0.0);
 int  WS::counter(0);
 

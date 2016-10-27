@@ -1,6 +1,11 @@
 #ifndef HH_Parameters_HH
 #define HH_Parameters_HH
 #include <iosfwd>
+#include <string>
+
+//! Enumeration for output
+enum class outMode{FILE, SCREEN, BOTH};
+
 struct parameters
 {
   //! max number of iteration for Gauss-Siedel
@@ -23,6 +28,10 @@ struct parameters
   double hc;
   //! Number of elements
   int M;
+  //! Channel(s) for output
+  outMode om;
+  //! Name of output file
+  std::string file;
   //! Constructor takes default values
   parameters():
     itermax(1000000),
@@ -34,7 +43,9 @@ struct parameters
     Te(20.),
     k(0.164),
     hc(1.e-6*200.),
-    M(100)
+    M(100),
+    om(outMode::BOTH)
+    file("results.dat")
   {}
 };
 //! Prints parameters

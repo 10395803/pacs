@@ -20,7 +20,7 @@ MAKEFILEH_DIR=../../
 -include Makefile.inc
 
 # Say no if you want full optimization
-export DEBUG=yes
+export DEBUG=no
 #CXX=g++-4.9
 #CC=$(CXX)# I am not using C compiler here, simpler to set it equal to c++
 STANDARD=c++11

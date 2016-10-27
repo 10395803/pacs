@@ -1,0 +1,1104 @@
+NOTES ON C++ RETRIEVED FROM LECTURES AND EXAMPLES OF THE PACS COURSE
+
+How to include header files:	for predefined files:	#include < <file> >
+								for user-defined files:	#include "<file>.hpp"
+Note that the way the preprocessor look for the header files is different in the two cases. Indeed, in the second case the preprocessor look for the header in the current directory, then in the directories specified by -I (if any), then in the system directories. In first case, the preprocessor just search in the directories specified by -I (if any), then in the system directories.
+
+How to declare a new namespace:	namespace <name> { \\scope }
+Note that this should be used both in the header and source file. Morevore, remember that namespaces are resolved at compile time, so they do not affect the performance
+
+How to import names in the current namespace:	using namespace <name>
+
+How to alias a type:	typedef <old_type> <new_type>
+						using <new_type> = <old_type>
+Prefer the second way
+
+To declare literals:	const double pi = 3.14
+						constexpr double pi = 3.14
+Prefer the second way 
+
+std::cout and std::cin are buffered, i.e. what has to be printed is stored in a buffer until the OS has time to actually print it.
+Conversely, std::cerr and std::clog are unbuffered
+
+How to get machine epsilon:	float eps = numeric_limits<float>::epsilon()
+
+How to initialize an array:	double a[] = {1., 2., 3.}
+How to initialize a vector:	std::vector<double> v{1., 2., 3.}
+							std::vector<double> v = {1., 2., 3.}
+							
+How to instantiate a pointer:	<type> * <name> = new <type>[array_length]
+To initialize a pointer to the null pointer:	<type> * <name> = nullptr
+
+Suppose a is int, b is double
+To convert a variable at run time:	b = double(a)
+To convert a variable at compile time, use static_cast:	b = static_cast<double>(a)
+Note: never rely on automatic variables conversion
+
+Pointer to a function:	<return_type> (*<pointer_name>) (<input_types>)
+With using:	using pf = <return_type> (*) (<input_types>)
+Note that input types must be separated by commas
+Then, to call the function through the pointer:	ans = <pointer>(<input_arguments>)
+While, to pass a function pointer to another function: fun(&<function_name>)
+NOTE: in general, avoid function pointers in C++
+
+auto keyword: it is converted to a type, but qualifiers are omitted, i.e. const and & must be explicate
+EX:	suppose fun returns a reference to double
+	auto ans = fun(3.0, 'a')	-->		ans is double
+	auto & ans = fun(3.0, 'a')	-->		ans is double &
+	
+decltype: to interrogate the type of a variable
+EX:	decltype(a) b
+
+std::tie: useful to unpack a tuple. For instance, suppose that fun return a tuple f three elements, then:
+	std::tie(arg1, arg2, arg3) = fun(<input_arguments>)
+Moreover, to save some lines of code:
+	std::tie(ans1, ans2, ans3) = std::make_tuple(arg1, arg2, arg3)
+	
+iosfwd (forward stream declaration): by including this header, you just import the stream declarations, not definitions, so compile time is reduced. For instance, we can include it in a header file needing streams and then import iostream (or friends) just in the source file. In other words, we import the definitions only when they are used, not in all source files importing that header.
+
+Include guard: 	#ifndef HH_<file_name>_HH
+				#define	HH_<file_name>_HH
+				// body
+				#endif
+				
+For a list of operators:	https://en.wikipedia.org/wiki/Operators_in_C_and_C%2B%2B
+
+In the definition of a function or class method: one may avoid to put the names of input parameters, only type and qualifiers, put the names only in the source file
+
+To extract the C string out of a C++ string: <string_name>.c_str()
+
+To read data through GetPot:
+	1. 	#include "GetPot.h"
+	2. 	Instantiate a GetPot object:	GetPot gp(<c_string>)
+	3. 	Read a parameter: value = gp("<name>", <default_value>)
+		The syntax in the .pot file is:	<name>=<value>
+Note that a GetPot object has the print() method
+
+int main(int argc, char ** argv)
+
+Pass argc and argv to a GetPot object:
+	GetPot gp(argc, argv)
+	bool ans = gp.search(<number_of_valid_flags>, "<flag1>", "<flag2>", ...)
+To read the argument after a flag:
+	gp.follow(<default_value>, "<flag>")
+	
+To write to file:
+	ofstream file("<file_name>")
+	file << // write to file
+	file.close()
+	
+Use gnuplot directly inside C++ code:
+	1.	#include "gnuplot-iostream.hpp"
+	2.	Instantiate Gnuplot object:	Gnuplot gp
+	3.	To plot two graphs on the same figure:
+		gp << "plot" << gp.file1d(std::tie(coor,sol)) <<
+        "w lp title 'uh'," << gp.file1d(std::tie(coor,exact))<<
+        "w l title 'uex'" << std::endl;
+        coor, sol, exact are vector<double>
+        
+Preprocessor, if statement:
+	#if // ...
+	#elif // ...
+	#else // ...
+	#endif // ...
+	
+When using the method reserve() of std::vector: you just allocate memory, but the size of the vector is zero. Then, to fill the vector, do not use access operator but push_back(). Always use reserve when you know the size of the vector (and you know it will not change throughout the code)
+
+To highlight the fact that a function may throw an exception, put throw() or throw(<name_exception>) after function declaration (then put it also in function definition).
+Note that in general this is not considered as a good programming practice
+
+To set scientific float format:	std::cout.setf(ios::scientific)
+To set the precision:	std::cout.precision(<number_of_digits>)
+
+std::max may take a parameter list:	std::max({1.,2.,3., ...})
+
+When you read from standard input through std::cin:
+	std::cin.clear():	clear all error flags, so that it will be possible to read again from std input afterwards
+	std::cin.ignore(<number_of_characters> = 1, "<delimiter>" = eof):	remove characters from stream (i.e. clean it)
+After ignore, use clear another time to remove eof flags (if delimiter is eof)
+
+To access the elements of std::pair:	p.first, p.second
+
+To use numeric limits:	#include <limits>
+For all numeric limits (or most of them):	see Examples/src/numeric_limits
+Note that numeric_limits is a template class
+
+Global variables: declared outside any function/class or main
+How to access them:	::<variable>
+
+How to initialize a multidimensional C array:	double p[2][3] = {{1.,2.,3.}, {4.,5.,6.}}
+
+When passing a pointer to a C array to a function: in function signature, all array dimensions can be omitted except for the last one
+Moreover, when calling the function, we can directly pass the vector, no need to use the address operator &
+
+Note on pointer declaration:	int * v[15]		--> v is a C vector of 15 pointers
+								int (*) v[15]	--> v is a pointer to a C vector of 15 int
+								
+REMEMBER: every new should be matched by a delete and every new[] by a delete[]
+With delete: we just destroy the first element of the array
+
+REMEMBER: using raw pointers for multidimensional arrays is not really efficient since memory allocation may not be contiguous.
+Thus, prefer STL containers (e.g. vector and arrays)
+
+std::vector<T>::push_back() vs std::vector<T>::emplace_back(): the first one cannot be used if T has not any default and/or copy constructor, moreover the second one leads to computational saving
+
+REMEMBER: prefer reserve() to resize() (more efficient code)
+
+To access the elements of std::vector: one can also use at, but it is computationally heavier since it makes a check on the bounds
+
+std::vector<T>::shrink_to_fit(): makes capacity equal to the size
+
+Iterator:	* remember to put "it != v.end()" and not "it < v.end()" (no less than operator for iterator)
+			* dereferenced through dereference operator *
+			* use auto keyword
+			* dereferncing an iterator is faster than use standard way to access container elements, but also begin and end has a cost (but in general prefer iterators)
+			
+To loop over the elements of a container (read only):
+	for (auto i : <container>)
+To get a reference to each element:
+	for (auto & i : <container>)
+To get a const reference to each element:
+	for (auto const & i : <container>)
+	
+REMEMBER: constant containers can be accessed only through constant iterators
+
+To get access to the memory area of a vector:	v.data()
+This returns a pointer to the C array actually storing the data. Note that the output is read only (i.e. cannot be used for allocation/deallocation).
+
+With vector<T>::clear(): we remove all the elements, so the size is 0 (but capacity should remain the same)
+After a clear, we can use reserve() to make sure there is enough space, or use shrink_to_fit() to put the capacity to 0 (i.e. to free the memory)
+
+How to initialize a std::array:
+	* std::array<double,5> a						--> a is filled with default constructor
+	* std::array<double,5> b(6.6)					--> all elements of b initialized to 6.6
+	* std::array<double,5> c{{1.,2.,3.,4.,5.,6.}}	--> initialised through parameter list
+	* std::array<double,5> c{1.,2.,3.,4.,5.,6.}		--> initialised through parameter list (since C++14)
+	* std::array<T,3> v{{{<constructor_args>}, {<constructor_args>}, {<constructor_args>}}}
+	* std::array<T,3> v{<constructor_args>, <constructor_args>, <constructor_args>}	--> since C++14
+
+To know the size of a std::array at compile time:	std::tuple_size<T>::value, where T is the array type
+This cannot be used for vectors because their dimension is not known at compile time
+
+How to initialize a weak pointer:
+	* std::unique_ptr<T> ptr(new T)
+	* auto ptr = std::make_unique<T>(<constructor_arguments>)
+To create a unique pointer to a vector of T (probably not so useful...):
+	auto ptr = std::make_unique<T[]>(<number_of_elements>)
+In this case, the elements are initialized through the default constructor
+Note that make_unique is available only since C++14
+
+How to move the ownerships among unique pointers:
+	b = std::move(a)
+where a and b are unique pointers. Now, b points to what was previously pointed by a and a is empty (what was pointed by b is deleted)
+
+If pt is a unique pointer:
+	pt.release()
+returns a standard pointer to the resource previously pointed by pt. Now pt is empty.
+
+REMEMBER: unique pointers are much lighter than shared pointers, so use the latter only when necessary!
+
+To insert references in a container: use reference_wrapper (header <functional> must be included)
+	std::vector<std::reference_wrapper<T>> v
+	
+const double pi = 3.14 <--> double const pi = 3.14
+The same holds for constexpr
+
+Constant class attributes can be initialised within class declaration only if they are of integral type, otherwise declare it in the header file but outside declaration:
+	const <class_name>::<attribute> = <value>
+Note that constexpr attributes always must be initialized outside the declaration of the class.
+Remember that definition of static (even const) class members should be defined in the source file, not in the header, through:
+	[const] <type> <class_name>::<attribute> = <value>
+Note thet static keyword is not necessary in the definition, only in the declaration
+
+const is always associated to the type on its left, unless it is in the first position. In this case it is associated to the type on its right
+
+A function can return a constexpr variable, but:
+	* it must consist of a single return statement
+	* it can call only other constexpr functions
+	* it can reference only constexpr global variables
+This restrictions have been somehow relaxed by C++14
+
+const_cast<T>(<object>): returns a constant object if <object> is not const and viceversa
+
+REMEMBER: only const methods can access const members and can be used on const objects
+
+To make a class member modifiable even when the class object is const: use mutable keyword
+EX:	class foo {
+		...
+		double a;
+		mutable int n;
+		...
+	}
+	
+	const foo f(3.0,5);
+	f.a = 2.1;	// KO
+	f.n = 10;	// OK
+	
+Enumeration:	enum <enum_name> {<arg1>, <arg2>, ...}
+Then, an enum object can be converted to an int (corresponding to the position of the argument in the enumeration)
+To prevent conversion to int (safer code), add class keyword:	enum class <enum_name> {<arg1>, <arg2>, ...}
+Then, to access an enum argument:	<enum_name>::<arg>
+
+How to interrogate an enumeration:
+	swicth (<enum_object>) {
+		case <arg1>:
+			...
+		break;
+		...
+		case <argn>:
+			...
+		break;
+		Default:
+		...
+	}
+	
+Default arguments:	* specify them in the function/method declaration, not definition
+					* specity them only for rightmost parameters
+					
+Static function variables: they are visible only inside the function but they lifespan is global. Note that they are initialized only the first time the function is called, in all other calls variables initializations is disregarded
+
+From C++11, new possible function declaration:	auto <function_name>(<input_parameters>) -> <return_type>
+This may be useful if the return types depend on the types of input parameters, e.g.:
+	template<class T1, class T2>
+	auto fun(T1 x, T2 y) -> decltype(x+y)
+In this case, the typical declaration of the form:
+	decltype(x+y) fun(T1 x, T2 y)
+would be wrong since x and y are not in the current scope when decltype is called
+
+Reference for fixed width integers:	http://en.cppreference.com/w/cpp/types/integer
+
+How to overload the stream operator for a std::array:
+	template <class T, std::size_t N>
+	std::ostream & operator <<(std::ostream & out, std::array<T,N> const & myarray)
+
+__cplusplus: This macro is defined when the C++ compiler is in use. You can use __cplusplus to test whether a header is compiled by a C compiler or a C++ compiler. This macro is similar to __STDC_VERSION__, in that it expands to a version number. Depending on the language standard selected, the value of the macro is 199711L for the 1998 C++ standard, 201103L for the 2011 C++ standard, 201402L for the 2014 C++ standard, or an unspecified value strictly larger than 201402L for the experimental languages enabled by -std=c++1z and -std=gnu++1z
+
+To test whether the code has been compiled with C++11 or C++14 standard enabled:
+	#if __cplusplus > 201103L
+		// C++14
+	#else
+		// C++11
+	#endif
+	
+std::array::size returns a constexpr, so it is resolved at compile time. However, the following code:
+	std::array<T, a1.size()> a2
+with a1 a std::array, would usually not work. Better to use tuple_size
+
+By putting "= 0" at the end of a virtual method signature, we make the method pure virtual, thus the class abstract. In other words, we cannot instatiate that class (since it is abstract)
+
+Check whether a polygon is convex or not: see Examples/src/SmartPointers/Polygon.cpp
+Compute the area of a generic polygon: see Examples/src/SmartPointers/Polygon.cpp
+
+To exit a program (for an error):	std::exit(1)
+
+In a derived class, use full qualifiers when calling a parent class method:	<parent_class>::<method>
+REMEMBER: parent constructor can be called in initializer list of child constructor
+
+To use the default default constructor:	<class_name>() = default (in class declaration)
+
+<smart_pointer>.use_count(): returns the number of share pointers pointing to the same object
+<smart_pointer>.reset(): to make a share pointer empty, i.e. it does not point to anything anymore so use_count() is decreased by 1
+
+std::shared_ptr<AbstractPolygon> apoly(polyFactory(Shape::Triangle).release()): to make a unique_ptr a shared_ptr
+
+Horner's rule to evaluate a polynomial (avoiding to use pow):	see Examples/src/Horner/horner.cpp
+
+std::vector<T>::back():	returns the last element of the vector
+
+Example of a for loop where we increase two variables in the statement:
+	for (int i=0; i <= numinterval; ++i,x+=interval)
+		points.push_back(x);
+		
+std::vector<T>::value_type: returns T (useful for template programming)
+
+If a function receives a reference to double as input: if it is not declared as const, we cannot call the function passing a literal or constexpr
+
+begin(container), end(container): they are equivalent to container.begin() and container.end() but they work also with C-style arrays
+However, note that they do not work with C-style dynamic arrays, only with fixed sized one, e.g.
+	double * v1 = new double[2];	
+	double v2[] = {1.,2.};		
+	copy(begin(v1), end(v1), out_it);	KO
+	copy(v1, v1+2, out_it);				OK
+	copy(begin(v2), end(v2), out_it);	OK
+
+Class of containers:
+	* Sequence containers (vector, array, deque, list, forward_list): the position of an element is independent of its value.
+	* Adators (stack, queue, priority_queue): built on top of other containers, provide special operations
+	* Ordered associative containers (set, multiset, map, multimap): position dependent on value, strict ordering relation defined through overloading of functor less<T> or operator<
+	* Unordered associative containers (unordered_set, unordered_multiset, unordered_map, unordered_multimap): a hashing function, going from the range of T to [0,nmax), must be provided together with equivalence relation (overloading of functor equal_to<T> or operator==)
+	
+For associative containers: elements are read-only, cannot be modified, modifications to container by erasing and re-inserting elements. Then, also containers return constant objects
+
+Operators availbale for iterators: *, ->, ++, =, ==, != (not <, <=, >, >=)
+
+std::vector<T>::push_front(): like push_back() but the complexity is greater since all elements must be shift by one position
+
+std::container::value_type: it can be used as type for function parameters but only if combined with the typename keyword, e.g.
+	template<typename T>
+	class MyClass {
+		container T;
+		...
+		typename T::value_type myMethod(typename T::value_type, double const &)
+		...
+	}
+typename is needed also in a typedef statement, but I think there should be no problem with (but check!):
+	vector<double> v;
+	v::value_type a = 2.0;
+The same holds for all other types defined by a container (see Lecture4, slide 12)
+
+std::container::difference_type: A signed integral type used to represent the distance between two of the container’s iterators
+
+std::difference(<first_iterator>, <second_iterator>): number of elements between the two iterators
+REMEMBER: difference operator defined only for iterators of random access containers, i.e. vector, array, deque
+
+std::make_pair: we can also pass a temporary object, e.g. auto z = std::make_pair(3.0, Polygon())
+Note that make_pair does not require template arguments
+
+To instantiate a tuple:
+	* std::tuple<int, double, char> t(1,2.,'c')
+	* auto = std::make_tuple(1,2.,'c')
+The function get< <position> >(<tuple>) returns a reference to an element stored in a tuple, so it can be modified, e.g.
+	get<1>(t) = 3.
+	
+Complexity of operations for containers: see Lecture4, slide 16-17
+
+std::deque: useful to insert elements at both ends
+
+Also a list can be initialized through initializer list: std::list<int> l = {1,2,3,4,5,6}
+
+std::list<T>::remove_if(pred p): remove an element if it satisfies a predicate, i.e. a function or class operator() which takes in input T and returns a boolean
+
+std::list<T>::splice: to import elements of another list (different versions, see Lecture4, slide 26)
+
+How to define a comparison operator:
+	* overloading of less functor:
+		template <>
+		struct less<MyClass> {
+			bool operator()(const MyClass & a, const MyClass & b) { ... }
+		}
+	* overloading of operator<:
+		bool operator<(const MyClass & a, const MyClass & b) { ... }
+		
+We can specify the comparison operator as second template argument of std::set (default is less):
+	std::set<T, comp> s
+where comp is a struct implementing operator() (which returns a boolean representing the result of the comparison)
+
+std::set<T>::insert(): returns a pair (iterator, bool), bool = true if the element has been inserted, false otherwise
+NOTE: prefer emplace to insert
+
+std::set<T>::find(): returns end if the element has not been found
+
+REMEMBER: iterators transverse a set using the inorder transversing, i.e. form the smallest to the biggest
+
+std::multiset: like a set but admits equivalent elements
+std::multiset<T>::equal_range(<elem>): returns a pair of iterators delimiting the range where <elem> is stored in the container
+std::multiset<T>::find(<elem>): return the iterator to the first <elem> found (or end)
+
+Elements in a (multi)set can be inserted through initializer list:
+	a.insert({<elem1>, <elem2>, ...})
+	
+std::map< <key_type>, <value_type> >:
+	* key_type must have an ordering rule (like for set)
+	* insert(): take a pair as argument (use make_pair) and returns an iterator and a bool (as for set)
+	* find(): take a key as argument and returns an iterator
+	* dereferencing an iterator, we get a pair <key,value>
+	* to look for a value (not a key): use find_if and lambda (or functor); remember that the comlexity of find_if (available for all containers) is O(N)
+	* operator[]:	m[<key>] = <value>:	to insert or modify an element
+					elem = m[<key>]:	to get the value --> 	beware: if <key> is not present, a new element is added using the defualt 																	constructor for the value, so prefer find() to look for an element 
+					
+std::multimap< <key_type>, <value_type> >: multiple equivalent keys admitted --> operator[] not provided
+
+Unordered containers: we do not need a comparison operator but an equivalence operator (overload of functor equal_to<T> or operator==) and and hash function (overload of functor hash<T>)
+
+Unordered containers are more efficient than ordered ones (if the hashing function is good) but if we insert an element iterators/pointers may be invalidated
+
+For unordered containers: to define hashing function, we need to specialize the functor hash:
+	template<>
+	struct hash<MyClass> {
+		size_t operator() (const MyClass & mc) { ... }
+	}
+Basically, a hshing function takes an object of MyClass and associate it a non-negative integer (i.e. the buckets)
+For unorderd maps: hash must be specialized for the key, not the value
+
+Adapters to containers (i.e. built on top of containers):
+	* stack: implement LIFO
+	* queue: implement FIFO
+	* priority_queue: like stack but returns the largest element instead of the newest one (ordering relation may be overloaded as for set)
+	
+To initialize a vector through the elements of a set s:
+	vector<T> v(s.begin(), s.end())
+Note that initialization by range is available for all containers (not only vector) but not for adapters
+
+All STL containers can be initialized via parameter list (remember double braces in C++11)
+
+REMEMBER: contiguous memory allocation (provided by std::vector and std::array) reduces cache misses, so always prefer these two containers to other ones (when possible of course)
+
+For a full list of algorithms for containers (ranges):	see http://en.cppreference.com/w/cpp/algorithm
+
+stable_sort: algorithm to sort the elements of a container preserving the order between equivalent elements (note that this is slower than the standard sort algorithm)
+
+Numeric algorithms of STL (#include <numeric>):
+	* accumulate: useful to sum or multiply the elements of a container
+	* iota: fills a range with sequentially increasing elements starting from a defined value
+	* adjacent_difference: computes the differences between the second and the first of each adjacent pair of elements of a range
+	* for_each(v.begin(), v.end(), op): apply op() to all elements of v (i.e. op is a class implementing operator())
+	* transform: to apply a unary operator to all elements of a container or to combine the relative elements of two different containers through a binary operator
+	* copy: to copy a range into another one; note that if the receiving range is a non sequential container, then we need an inserter
+	
+Inserters:
+	* front_inserter
+	* back_inserter
+	* inserter
+	
+A functor: 
+	* is a struct/class implementing the call operator (i.e. operator())
+	* if the call operator returns a bool, the functor is also called a predicate
+	* if the call operator does not modify the object, the functor is called stateless; note that all functors used in the standard algorithms should be stateless
+
+For complex numbers: complex<T> (T may be a double)
+
+operator< for tuples: compare two tuples (with same size) element by element
+
+How to declare a lambda:
+	auto <name> = [<extra_parameters>](<input_parameters>){<body>}
+How to wrap a lambda in a function:
+	std::function< <return_type> (<args>) > <name_function> = <lambda>
+
+How to declare a set:
+	* if the comparison operator has been overloaded through a lambda named comp:
+		set<double, decltype(comp)> s({\\initializer list}, comp)
+	* if the lambda function has been wrapped in a function named funcomp:
+		set<double, decltype(funcomp)> s({\\initializer list}, funcomp)
+	* if the comparison operator has been overloaded through a functor funct:
+		set<double, funct> s({\\initializer list}) or set<double, funct> s = {\\initializer list}
+In the first two cases, comparison operator has to explicate as argument since a lambda does not have a default constructor
+
+std::multimap<key,value>::lower_bound(<elem>): returns an iterator to the first element whose key is equal to <elem>
+std::multimap<key,value>::upper_bound(<elem>): returns an iterator to the last+1 element whose key is equal to <elem>	
+These two methods are useful for extracting all the elements having a certain key
+
+If you trasverse a map/multimap with
+	for (auto i : <map>)
+remember that i is a pair<key,value>	
+
+For a multiset: the method insert does not return a bool, just the iterator because the element will be inserted in any case
+
+To print all elements of a container though ostream iterator:
+	std::copy(c.cbegin(), c.cend(), ostream_iterator<T>(cout, "<separator>"))
+where T is the type stored by the container
+
+multiset<T>::erase(<elem>): returns an int corresponding to the number of elements deleted
+
+std::deque<T>::assign(<num_elem>, <value>): to set the deque size to <num_elem> and fill all the elements of the container with <value>.
+Note that if deque was already initialized, all old values are lost
+
+To insert element in a multimap:	m.insert({ {key1, value1}, {key2, value2}, ... })
+
+std::cout.setf(std::ios::left, std::ios::adjustfield):	the text within a column will be left justified
+std::cout << setfill("<char>") << setw(<width>) << <string1> << <string2>: this will print the two strings left justified (for what set in the previous line) reserving a space of <width> characters for each string; the possible empty positions will be filled with <char>
+
+To initialize a (multi)set of POD types with descending order:	set< T, greater<T> >, multiset< T, greater<T> >
+
+std::multiset<T>::erase(<first_iterator>, <last_iterator>): remove all elements in the range [<first_iterator>, <last_iterator>)
+
+std::set<T>::value_comp(): return a copy of the functor/function/class used to define the strict weak ordering
+
+Examples/src/STL/setcmp1.cpp: examples of comparison operator defined through a class, where the comparison rule depends on the status of the object. Then, we can set:
+	set< T, <class> > s(<object>)
+If you do not specify the object in the constructor, the default object (i.e. given by the default constructor) is used
+
+To access a (public) enum declared in a class:	<class>::<enum_object>
+
+To remove all negative elements from an unordered set:
+	for (auto pos=coll.begin(); pos!= coll.end(); ) {
+        if (*pos < 0) {
+            pos = coll.erase(pos);
+        }
+        else {
+            ++pos;
+        }
+    }
+REMEMBER: only inserting new elements in an unordered associative container may invalidate the iterators, not erasing
+
+cppcheck: tool for a static analysis of the code
+checkheaders: tool for detecting useless includes
+
+Optimization flags: -Os is equivalent to -O2 but avoids those optimizations that will lead to a bigger code ("s" stays for "space")
+
+Aliasing: arguments passed to a function overlap in memory (i.e. they coincide)
+
+Translation unit == compilation unit
+
+In a Unix system a static library is just an archive of object files.
+Both static and shared libraries are considered at linking stage to resolve still unresolved symbols. But the code in the static libraries
+is actually inserted in the final executable.
+
+In the linking phase: the order of static lybraries matters
+
+Debugging: to use the debugger the code must be compiled with the option -g (and no optimization). The option tells the compiler to add to
+the source file the information needed to locate to which source line is associated the machine code.
+
+Static debugging: analyze the content of the core dump, i.e. a file generated whenever the code aborts.
+To enable the creation of a core dump whenever the code aborts:	ulimit -c unlimited
+
+gcc is a cross-compiler, it means that can compile code also for other architectures than the one from which it is run. Moreover there are many options to tailor your code to a specific CPU.
+
+__FILE__: macro storing the name of the files where we are
+__LINE__: macro storing the number of the line where it is used
+
+File extension:	.C == .cpp == .cc
+
+#error <string>: this preprocessor directive prints the string to video and then aborts the program
+
+#define <MACRO> <value>: to define a macro (note that its name is usually in capital letters)
+Then in the code we can use <MACRO> even outside preprocessor directives
+
+To read from file:
+	1. 	Instantiate an ifstream object and open the file:
+			ifstream file("<file_name>"); 
+		or 
+			ifstream file; 
+			file.open("<file_name>");
+	2.	Read line by line:
+			while(true) { 
+				file >> <first_extracted_item> >> <second_extracted_item> >> ...
+				if (!file.fail() && !file.eof()) { \\ do something }
+				else break;
+			}
+	3.	Close the file:
+			file.close()
+			
+<class>::operator <type>(): to convert an instance of this <class> in <type>.
+Note that even if in the signature we do not have any input or output parameters, it returns an object of type <type>
+
+Prefix vs postfix increment/decrement operator: in the former we return a reference to the object after it has been increased by one unit, in the latter we return by value a copy of the object, the we increase it by one unit (i.e. the current object is modified but the pre-modified version is returned)
+To differentiate the two operators: the postfix receives a dummy int as input parameters (otherwise the signature would be equal among the two, only the return type (T & vs T) would change) 
+
+For measuring time:	see utilities chrono.hpp and chrono.cpp in Examples/src/Utilities
+
+operator() == call operator
+
+REMEMBER: inlinining does not work with pointers to function. Then, if we need to pass a policy to a function (e.g. to the algorithms of the standard library), always prefer a functor to a function (since functor will be inlined)
+
+For a full list of functors provided by the STL: see http://www.cplusplus.com/reference/functional/
+
+find_if algorithm: 	first argument: 	iterator to first element to visit
+					second argument:	iterator to last+1 element to visit
+					third argument:		predicate (e.g. functor, lambda)
+					return:				iterator to the first element satisfying the predicate (or end) 
+					
+Lambda function: it is usually an unnamed function. Powerful syntax to create short and inlined functions quickly.
+Syntax:
+	[<capture_specification>] (<arguments>) {\\ code that returns something}
+	or
+	[<capture_specification>] (<arguments>) --> <return_type> {\\ code that returns something}
+The second syntax is necessary when the compiler cannot automatically detect the return type
+
+Note on lambda function: avoid to capture all external variables, just capture the ones needed
+For a list of capture specifications: Lecture6, slide 11
+
+When a lambda function captures this: then in the body of the lambda we can use a member of the class without using "this->"
+Moreover, if you call the lambda function within a method of the class, after the call class members are (may be) modified, even if this is captured by value
+
+Generic lambdas: we can avoid to specify the type of the parameters, the compiler deduce them based on the type of the arguments.
+In the lambda declaration, use auto for all input parameters
+
+Bind and placeholders: useful to fix some of the arguments of a function
+EX: suppose fun takes in input a double and an int, then:
+		auto f = std::bind(fun, 3.0, std::placeholder::_1)
+		auto ans = f(4)
+	is equivalent to
+		auto ans = fun(3.0, 4)
+		
+Function wrappers are very useful when you want to have a common interface to callable objects (i.e. functions, member functions, functors, lambdas)
+
+Parser: useful to define functions at run time (e.g. read from file)
+
+Lecture7, slide 5-6: what a header file should/shouldn't contain
+
+A header file contains all the information needed by the compiler to verify type consistency, calculate the dimension of an object to be stored in the stack memory, instantiate templates, define static objects (i.e. objects that are defined at compilation stage, and not at linking stage).
+
+Forward declarations: needed to specify the type of the parameter of a function or of a static variable
+
+In an object file:	T means that the object has been resolved, while U that is still undefined
+
+#define <MACRO>: <MACRO> is defined just in the file where the instruction lies, but if it is defined in a header then it will be visible also to all source files importing the header
+-D<MACRO>: <MACRO> is defined for all files in the translation unit
+
+NDEBUG: define this macro if you do not want to debug the program. If this macro is defined (e.g. by -DNDEBUG) assert() is deactivated, as almost all checks made by STL algorithms
+
+If a function is used only within a translation unit and you want to hide it to other files, declare it with the static keyword or put it in an unnamed namespace. Note that this kind of function must be declared/defined only in the source file. In C++11 better to use unnmed namespaces than static functions.
+
+External linkage: a variable that is visible to all files of an executable. In the practice, declare the variable in a header with the extern keyword:
+	extern <type> <name>
+Then import the header in a source file and define the variable:
+	<type> <name> = <value>
+Remember that only one source must define the variable, while all other sources which make use of it must just include the header.
+
+REMEMBER: in C++, variables/functions in the global scope have by default external linkage, but const objects have internal linkage by default
+
+To throw a run time error:	throw std::runtime_error("<error_messagge>")
+
+++<variable>: first I increase the variable, then I use it
+<variable>++: first I use the variable, then I increase it
+
+To call the call operator within a class:	this->operator()(<arguments>)
+
+How to declare default value for a struct in input:	<name_struct> = {<arg1>, <arg2>, ...}
+where <arg#> are the arguments of the constructor
+
+NOTE: instead of declaring global variables representing some parameters, define structs storing them
+
+How to declare a derived class:	class <child_name> : [final] <public/protected/private> <parent_name>
+The final keyword ensures that no classes will be further derived by <child_name>
+
+To use some sort of methods (e.g. constructor) provided by C++11:
+	<method_signature> = default
+To delete it:
+	<method_signature> = delete
+or make it private (but prefer the first way).
+See Lecture9, slide 3 for the list of synthetic methods provided by C++
+	
+After every method declaration in a header file: put semicolon
+
+EIGEN:
+	* vector type:	Eigen::VectorXd
+	* matrix type:	Eigen::MatrixXd
+	* to allocate a vector of dimension n:	Eigen::VectorXd v(n)
+	* possible initialization of an Eigen vector:	x << <value1>, <value2>, <value3>, ...
+	* to allocate a matrix of dimension (m,n):	Eigen::MatrixXd mat(m,n)
+	* to access the elements of a vector/matrix: 	[]
+	* Eigen::MatrixXd::col(j), Eigen::MatrixXd::row(i):	return a reference to a column/row
+	
+When computing a derivative through finite difference: remember that if the step is too small, roundoff error may exceed the discretization error. In Examples/src/NonLinSys, the default step is set to:	1.e3*std::numeric_limits<double>::epsilon()
+
+To solve a linear system $ Ax = b $ with eigen:
+	Eigen::VectorXd x = A.fullPivLu().solve(b)
+where A is of class Eigen::MatrixXd and b of class Eigen::VectorXd
+
+REMEMBER: typedef definitions in a header file are imported when imported the header in any source file
+
+Suppose fun takes in input a function wrapper (i.e. std::function) (as const reference), then we can give in input to fun:
+	* a functor f1	:	fun(f1())
+	* a function f2	:	fun(&f2) (& not necessary)
+	* a lambda		:	fun([\\capture](\\arguments){\\code})
+	
+To check whether the string read from standard input are fine:	std::cin.good() (returns true if everything is OK, false otherwise)
+
+g++ -E <file>.cpp: just to call the preprocessor; the preprocessed file is printed to terminal
+
+A function by default has an external linkage, unless it is a static function or defined within an unnamed namespace. In this case, the function can be used only within the translation unit, i.e. in the source file it is declared and defined (remember that local functions are not present in any header).
+
+blas = basic linear algebra subroutines: library providing highly optiized basic operations on matrices and vectors. One of its implementation is atlas
+
+A library is usually made of:
+	* header files, giving the public interface to the library
+	* object files, providing the implementation
+Template libraries are only made of headers
+
+Precompiled programs which use a dynamic library do not need the headers to be installed
+
+During the linking phase: still unresolved symbols are searched in the libraries indicated, in the same order they are specified
+
+With a shared library: linker do not link the library to the code, just insert the name of the library solving the still undefined symbols. Then, the loader will load in the executable the needed library code at run time.
+
+When creating a shared library: we must specify which other shared libraries define the symbols still unresolved. This is not true for a static library, which can be created with unresolved symbols.
+
+umfpack and MUMPS, two libraries of direct solvers for sparse matrices
+
+Library extension:
+	* static:	in Windows .lib, in Unix .a
+	* dynamic:	in Windows .dll, in Unix .so
+	
+Differences between hard and symbolic links:
+	* both are created with ln command, for symbolic links specify the -s option
+	* symbolic links can be made to directories too and files belonging to different filesystems or partitions
+	* when using a GUI, symbolic links have different icons than original files, while hard links have the same icon of the original file
+	* when using the rm command, the number of hard links pointing a file is decreased by 1 and the file is actually deleted when the counter reaches zero
+	* if deleting the target of a symbolic links, this becomes unusable
+	
+In the output of ldd command:
+	<soname_to_search> => <found_so_name>
+In the output of ls -l:
+	<symbolic_link> -> <target_file>
+	
+Shared libraries can be loaded at run time (possibly depending on the results of some operations or on user's choices). In this case we do not include the header file(s) of the library but just the <dlfcn.h> library. Note that the dlfcn library is written in C, so all libraries to import must be written in C or with the extern "C" keyword. This is necessary to avoid name mangling, so known the symbol of a function. Moreover, only functions can be loaded through dlfcn. For a concrete example, see Examples/src/SharedLibrary/DynamicLoading
+	
+extern "C" { ... }: to specify to the compiler that everything is in the scope must not experience name mangling at compilation, e.g. functions defined within the scope will be associated a symbol whose name corresponds to function name (and not signature as usually in C++). This is useful when C++ code has to interact with C code, since in C we do not have objects name mangling. Note that an extern function is still a C++, then it can exploit all functionalities of C++. The only limitations are that it cannot be a member-function and it cannot be overloaded.
+
+How to load a library at run time:
+	* 	#include <dlfcn.h>
+	* 	load the library:	void * lib_handle;
+							lib_handle = dlopen("<path_to_dynamic_library>", RTLD_LAZY)
+	  	note that the real name of the library has to be specified
+	*	load a function from the library:	fun = reinterpret_cast<Fun>(dlsym(lib_handle, "<function_name>"))
+		where Fun is a typedef corresponding to a pointer to the function to load, fun is of type Fun and <function_name> corresponds to function symbol since it has been declared/defined with the extern "C" keyword
+	*	check:	char * error = dlerror()
+		error is nullptr if everything is fine
+	*	close the library:	dlclose(lib_handle)
+	
+A filesystem is a set of methods and data structures used to store files on a device (e.g. hard disk).
+inode: location in memory storing information about a file. Each inode is associated to an integer number - the i-number
+Note that the inode does not contain the file name or data stored in the file. However, the latter can happen for very small files (what is called inlining).
+
+Synthetic or automatic methods (i.e. provided by free by C++):
+	*	constructors:	call constructor for all non-static members in the order they are declared
+	*	destructor:		call destructor for all non-static members in the reverse order wrt their declaration
+	
+In the initialization list of a constructor: members are initialized according to the order they are declared independently of the order in the initialization list
+
+For a base class: the destructor must always be declared and it must be virtual
+
+Explicit constructors: if we do not want implicit type conversion (for input arguments)
+In the declaration, use the explicit keyword:
+	explicit <constructor_signature>
+	
+At the end of a class declaration: remember to put a semicolon
+
+Pointers to member function:
+	<return_type> (<class_name>::* <pointer_name>)(<input_parameters_type>)
+Then, to initialize it:
+	<pointer_name> = & <class_name>::<function_name>
+and use it:
+	<class_name> <object_name>;
+	ans = (<object_name>.*<pointer_name>)(<input_arguments>)
+	
+Inlining may make debugging difficult, so it may be useful to disable inlining during debugging phase thorugh a macro (see e.g. Lecture9, slide 32)
+
+operator . accessese public class elements, not static ones. For static class members use :: operator
+
+REMEMBER: brace initialization do not allow narrowing (i.e. going from a "richer" to a "poorer" type) on built-in types, for instance:
+	double a = 2.3;
+	int b{a};	KO
+	int c(a);	OK
+	
+	float aa = 2.3;
+	double bb{aa};	OK
+	double cc{aa};	OK
+	
+<class> <object>{}:	it calls the default constructor ({} are actually not needed)
+
+BEWARE:
+	* std::vector<int> v{10,20}:	v is a vector storing 10 and 20
+	* std::vector<int> v(10,20):	v is a vector of 10 ints initialized to 20
+	
+Clonable class: a class that can close itself. Namely, it has a method (e.g. clone()) which returns a unique pointer to the current object
+
+If there is no special reason to do otherwise, make sure your class is default constructible, copy constructible and copy assignable (and possibly also move-constructable and move-assignable), using the synthetic or user specified methods
+
+REMEMBER: Also methods may be declared static. Only static methods can access static variables without the need of an object, since they are
+method at the class scope. Since they do not act on an object, static methods cannot be declared as const
+
+Within a template class, methods may need another template parameter(s), which can be declared with the template keyword before the method declaration/definition
+
+For a template: enclose declaration and definition in two separate namespaces (with the same name of course)
+	
+Within a template class we cannot access the private members of another class of the same type if the template arguments are different. In other words, different template arguments mean different types
+
+Template specialization: we can just specialize a method, there is no need to specialize the entire class
+
+If a template class method gets in input an object of the same class, the two classes can have different template arguments
+In this case, in the method definition:
+	template< <templates_for_current_class> >
+	template< <templates_for_input_class> >
+	\\ definition
+	
+Template parameters may be of enum type:	template< <enum_name> T >
+
+Static members: if not const, define them in the source file defining the class as
+	<type> <class>::<member> = <value>
+	
+std::numeric_limits<double>::quiet_NaN(): returns not a number without throwing a floating point exception
+
+It is important to remember that a template function is generated only if it is instantiated, i.e. if it is used. This has a practical consequence: possible errors can be found only when the template is adopted
+
+REMEMBER: implicit conversions do not apply for template argument deduction. However, try to avoid indicating the argument type explicitly
+
+Constant template parameters: see Lecture10, slide 12 for a full list of objects which can be used as template parameters. In this case, instead of typename or class we put the type of the constant. However, remember that the actual values must be know at compile time. For instance, the following:
+	template<typename T, int n>
+	void fun(T & t);
+	...
+	fun<double,n>(3.0);
+will work only if n is a constexpr. In other words, the compiler must know the actual value of the template argument when the object is created.
+
+Template parameters can also be assigned a default value as for function parameters, always starting from the rightmost parameters. If all parameters of a template class are assigned a default value, to create an object we have to do:
+	class<> object
+The <> are needed. 
+
+REMEMBER: there is no partial specialization for template functions, there is just overloading.
+For instance, consider this function:
+	template<typename T>
+	T mean(T const & a, T const & b) { ... }
+and it's overloaded version for pointers:
+	template<typename T>
+	T mean(T const * a, T const * b) { ... }
+The second version will be prefered when the arguments are pointers.
+On the other hand, a full specialization may be:
+	template <>
+	Triangle mean(Triangle const & a, Triangle const & b) { ... }
+	
+Suppose a function takes two template arguments, in case of ambiguity just the first one can be explicated
+
+If we have a template function and a free function which have the same signature, with:
+	fun(<args>)
+we call the free function, while
+	fun<>(<args>)
+calls the template function
+
+Order followed by compiler to resolve a call to an overloaded template function:	see Lecture10, slide 19
+
+A full specialization of a template function goes in a source file, all the rest in a header file
+
+Consider:
+	template<typename T>
+	void f(T & t)
+	
+	template<typename T>
+	void g(T * t)
+In both cases, if the input arguments is a reference, the reference part is ignored, e.g.
+	int a = 1;
+	int & b = a;
+	f(a);	T is int
+	f(b);	T is still int
+	g(&b);	T is again int
+	
+Consider:
+	template<typename T>
+	void f(T t)
+If the input arguments is a reference and/or const, the reference part and the constness are ignored, e.g.
+	const int a = 1;
+	const int & b = a;
+	f(a);	T is just int
+	f(b);	T is again just int
+	
+An ordinary (i.e. a no-template) class may have template methods. However, these cannot be virtual.
+
+When declaring a friend function with a template class declaration: use another name for the template parameter(s)
+
+SFINAE paradigm: Substitution Failure Is Not an Error: when substituting the deduced type for the template parameter fails, the specialization is discarded from the overload set instead of causing a compile error
+
+Within the scope of the class and that of its members I can avoid to use <T> to indicate Vcr<T> (where Vcr is a template class). This means that in methods definition, for input parameters one may use Vcr instead of Vcr<T>. However, one may still be explicit, it is not an error.
+This does not hold for a friend function: since we are outside the scope of the class, the template parameter must always be explicit.
+
+We may specialize methods singularly, like we have seen for the functions (with the same rules!), or a whole class. In case of the
+specialization of a class, all methods of the specialized version must be defined (specialization is NOT inheritance).
+Class specialization is needed if you have to change the return type of methods.
+
+In the declaration of a fully specialized class:	we need template<>
+In the definition of the method of a fully specialized class:	we do not need template<>
+
+Lecture10, slide 42: useful examples of template class specialization
+	
+When specializing a template function/class, the declaration of the primary (not specialized) function/class must be visible, so either:
+	* include the header with the declaration/definition of the primary
+	* put a pure/forward declaration of the primary before the specialization
+	
+If a method of a template class requires a template parameter different from that one of the class, when calling the method we must use the template keyword:
+	<object>.template <method>< <template_argument> >(<args>)
+	
+IMPORTANT:	Lecture10, slide 58 (use of template and typename keywords for template methods and typedef members)
+
+CRTP = Curiously Recurring Template Patterns: how delegating the implementation of a method to a derived class not using virtual but templates. It is more efficient because there are no virtual call overheads, however more rigidity is implied since everything must be known at compile time. This is the mechanism used by Eigen for all types of matrices (inheriting MatrixBase)
+
+Variadic templates: to specify that a class or function may receive an arbitrary number of template arguments
+	template<typename... args>
+	class MyClass<args...> { // code }
+	
+How to specify a template parameter which is template itself:
+	template<class T, template<class> class C>
+Then, in the code, we may use:	C<T>
+
+Explicit template instantiation: to force the compiler producing code for a certain template argument for a template class or function. For a class, the code for all the methods is generated, as long as all makes sense for that template argument.
+In the header file declaring/defining the function/class, put:
+	extern template class <class_name> < <template_arguments> >
+or
+	extern template <return_type> <function_name>< <template_arguments> >(<input_types>)
+This will tell the compiler not to produce the code relative to <class_name> < <template_arguments> > in the object file of a compilation unit including the header, thus leaving the symbols undefined. The code will provided by another translation unit (so the linker will care about it).
+Then, in a source file we can generate the code for the function/class through:
+	template class <class_name> < <template_arguments> >
+or
+	template <return_type> <function_name>< <template_arguments> >(<input_types>)
+The binary code will generated only here, so it will be present only inside one object file. In this way, both compile time and memory usage are improved.
+
+std::toupper(<char>): to make a character capital
+
+std::cout.setf(ios::boolalpha): to print a bool as false/true and not as 0/1 (default)
+
+Since what is pointed by a pointer to method cannot be inlined, to specify a policy in a class or function it may be better to use a template than a pointer to function/method (see Examples/src/MyMat0)
+
+There is only a single ternary operator, is the ternary conditional operator:	a ? b : c
+
+REMEMBER: It is not possible to overload :: (scope resolution), . (member selection) and .* (member selection through pointer to function)
+
+REMEMBER: Operators =, [] e -> can be implemented only as non static class member
+The assignment operator returns a reference so that the statement "a = b = c" is valid
+
+Remember that if you define a copy-assignment you do not have the synthetic move-assignment. If you want it you have to define it yourself (or use the default statement)
+
+The addition operator is normally implemented as a free function friend of the class. The reason is that we want it to be symmetric with respect to its argument (if the arguments are of the same type). One may want to exploit the addition-copy (+=) operator within the implementation of the addition operator (so to avoid replecating code).
+
+NOTE: operator +() returns a value and not a reference since we want that a=b+c be valid, but a+b=c being meaningless.
+Instead, operator += () returns a reference to the object.
+
+Streaming operators are peculiar in the fact that they can be implemented only as free function and they take as first argument a reference to an output stream, and they return a reference to the output stream. The general structure is
+	std::ostream & operator << (std::ostream &, T const &)
+The ostream returned is just a reference to the one passed as first parameter. This allows to write 
+	std::cout << a << b << std::endl
+	
+The iostream manipulator std::showpos allows to have the plus sign (+) written in front of a positive number:
+	cout << 5; prints 5, cout << std::showpos << 5; prints +5.
+Manipulators are defined in the standard header file ios.
+
+Recall that an POD expression with value different from zero is convertible to the true boolean value
+
+Constructor operator: a constructor operator is a method without return type and without arguments, whose name is the name of the type to which we want to be able to convert:
+	operator Type() const
+Beware: even if it has not a return type, has to return the converted object! The type is just the name of the operator
+
+Call operator can be implemented only as method of the class
+
+Polymorphism: the ability of objects belonging to different types to respond to method, field, or property calls of the same name, each one according to an appropriate type-specific behavior
+
+Mechanism of public inheritance:
+	1.	Public and protected members of B are accessible by D. If they are redefined in D you can still access members of B using the
+qualified name (B::..).
+	2. 	Public members of B are public also in D.
+	3. 	Protected members of B are protected in D and thus accessible only by D and possible classes publicly derived from D.
+	4. 	Private members of B are inaccessible by D.
+	5. 	Methods defined in D hide methods with the same name in B (the methods of B are still accessible using the qualified name).
+	
+Public inheritance allows public polymorphism:
+	1. 	A pointer and a reference to D is automatically converted to a pointer (reference) to B.
+	2.  Methods declared virtual in B are overridden by methods with the same signature in D.
+	3.  If B* b=new D is a pointer to the base class converted from a D*, calling a virtual method (b->vmethod()) will in fact invoke the method defined in D.
+	
+IMPORTANT: you must have the same return type in overridden virtual methods. With one exception: a method returning a pointer or reference to a base class may be overridden by a method returning a pointer (reference) to a derived class. Remember that polymorphism applies only on the virtual method, not on overriden methods not virtual.
+
+Public inheritance polymorphism (simply called polymorphism) must be used only when the relation between base and derived class is an ’is a’ relation: the public interface of the derived class is a superset of that of the base class.
+That is, I can use on an object of the derived class any method of the public interface of the base.
+PROMISE NO LESS, REQUIRE NO MORE (H. Sutter)
+
+Constructor of a derived class: in the initializer list, we can call a constructor of the base class (otherwise the defualt one is called). 
+	*	Variables members inherited from the base class are built using the default contructor of the base class or the base class constructor indicated in the initialization list of the constructor.
+	* 	Possible member variable added by the derived class are then constructed, eventually using the constructors indicated in the
+initialization list, with the usual precedence rule.
+As a consequence, members of the base class are available to build members of the derived class, if needed.
+
+Destructor of a derived class: an object of the derived class is destroyed by
+	*	First destroying the variable members defined only in the derived class, in the inverse order of their declaration;
+	*	Then destroying those of the base class, with the usual rule.
+Note: If you apply polymorphism the destructor of the base class should be defined virtual. This is compulsory if the derived class introduces new variable members.
+
+IMPORTANT: do not change in the derived class the return type and the value of default arguments of a virtual method of the base class
+
+If in the derived class you change the signature of a method of the base class but keeping the same name, bring the base method in the scope of the derived class with using:
+	using <base_class>::<method_name>
+	
+final keyword: it can be used both for classes and methods (cannot be override in a derived class)
+override keyword: it can be applied only to methods redefining methods declared as virtual in the base class (otherwise it is an overload more than an override)
+
+Protected and private inheritance:
+	*	class D: protected B. Public and protected members of B are protected in D. Only methods and friends of D and of classes derived from D can convert D* (or reference) into B*.
+	*	class D: private B. Public and protected members of B are private in D. Only methods and friends of D can convert D* into B* (it applies to references as well).
+For instance, suppose the base class has a public virtual method. In the derived class, it will be:
+	*	protected, if the inheritance is protected
+	*	private, if the inheritance is private
+	
+Private inheritance is the default inheritance for classes, while public inheritance is the default inheritance for structs.
+
+Multiple inheritance: a class can inherit from multiple classes with different types of inheritance, e.g.
+	class Derived : public Base1, protected Base2
+	
+Suppose that a class D inherits from two classes B and C, each one deriving from the same base class A (what is called a dreaded diamond). In this case, polymorphism doesn't work because D will inherit members and methods of A both from B and C. To solve this issue, use virtual inheritance:
+	class B : virtual public A
+	class C : virtual public A
+	class D : public B, public C
+Now the compiler just put only one copy of members and methods of A into D and a pointer/reference to D can be converted to a pointer/reference to A.
+
+As a general rule: try to avoid virtual inheritance:
+	*	inefficient
+	*	make the code more complex
+	
+If a class has a reference as member: this must be instantiated in the constructor and cannot be changed any more
+
+Friend classes: they can access private members and methods of the other one.
+
+How classes can collaborate each other:
+	*	Composition: obtained by having an object of another class as member. Typically the object is kept private, and is used within the class. The lifespan of the contained object coincides with that of the container.
+	*	Aggregation: the class stores a pointer or a reference to a polymorphic object. In the case of a reference, it must be initialized in the constructor and cannot be reassigned. The lifespan of the referenced object is independent from that of the containing one, and the former outlive the latter. If the aggregated object is used to define part of the implementation of the class is called a policy.
+	*	A view (or proxy) is a particular type of aggregation (usually performed with a reference), whose role is to enable to access the contained element using a different (usually more specialized) interface for particular use.
+	*	A proxy may also be used to create a class that may write on an object which otherwise has only const methods (see e.g. Lecture12, slide 38)
+	*	Composition with a polymorphic object: in this case you store a pointer (sometimes a reference) to an object whose lifespan has to coincide with that of the containing class. We say that the containing class has full ownership of the contained object: it has the responsibility of its creation and destruction. Normally the contained object is created by a object factory (i.e. a function which creates the object) or through the use of the virtual construction (cloning) technique. The control of the lifespan is greatly facilitated by the use of smart pointers.
+	
+Composition vs protected/private inheritance:	see Lecture12, slide 44.
+
+When importing a string from a .pot file with GetPot:
+	* do not use "" in the .pot file (because they would be included in the string)
+	* use std::string::c_str() for the default value
+	
+Never write a function that returns a reference to a temporary. This not only wrong, but useless! Temporaries must be always returned by values. Thanks to RVO (return value optimization) and the fact that the returned object is a rvalue returning by value is optimal.
+
+Move semantic and perfect forwarding:
+	* Move semantic: makes it possible for compilers to replace expensive copying operations with less expensive moves. Move constructors and move assignment operators offer control over the semantics of moving.
+	* Perfect forwarding makes it possible to write function templates that take arbitrary arguments and forward them to other functions such that the target functions receive exactly the same arguments as were passed to the forwarding functions.
+	
+Type vs category: the type identify an expression in terms of its size and the functionality it provides. A category is instead linked to the context in which the expression or variable is used.
+A type may be subdivided in:
+	*	basic type
+	*	qualifiers
+	*	adornments (e.g. &)
+Principal qualifiers:
+	*	const
+	*	volatile
+	*	mutable
+Basically, two categories in C++:
+	*	lvalue
+	*	rvalue
+	
+Definition of lvalue and rvalue in C:	An lvalue is an expression that may appear on the left or on the right hand side of an assignment, whereas an rvalue is an expression that can only appear on the right hand side of an assignment. 	
+Definition of lvalue and rvalue in C++: An lvalue is an expression that refers to a memory location and allows us to take the address of that memory location via the & operator. An rvalue is an expression that is not an lvalue.
+
+If a function returns something by value: that is an rvalue
+If a function returns something by reference: that is an lvalue
+
+REMEMBER: lvalues are implicitly converted to rvalues, but the viceversa is not true 
+
+REMEMBER: an rvalue can be used to initialize a const lvalue reference, but not a non const lvalue reference
+
+The process by which an expression is associated to a reference is called binding.
+A non-constant rvalue preferibly binds to rvalue references, but it can also bind to constant lvalue references. Conversely, an lvalue can bind only to lvalue (classic) references.
+
+IMPORTANT RULES:
+	*	If a function returns a value that value is considered an rvalue.
+	*	If a function returns a lvalue reference (const or non-const) that value is considered an lvalue.
+	* 	It a function returns a rvalue reference (but there is normally no reason to do so!), that value is an rvalue.
+	
+IMPORTANT: general overloading rules, see Lecture16, slide 21
+
+IMPORTANT: Named variables of rvalue reference type are lvalues (every variable with a name is an lvalue). In particular function parameters (of any function, also constructors) are
+lvalues, even if their type is an rvalue reference. This is because lvalue and rvalue are two categories, not types (remember the C++ definition of lvalue and rvalue).
+	
+The rules for the generation of automatic operators: see Lecture16, slide 25
+	
+Within the initializer list of a constructor, we can use the new statement for allocating pointers, e.g.:
+	MyClass::MyClass(const int & size) : myMember(new double[size])
+	
+std::move(expr) unconditionally casts expr to a rvalue reference
+std::forward<T>(expr) casts expr to the lvalue reference T& if expr is an lvalue, and to the rvalue reference T&& if expr is an rvalue.	
+
+Example of how to use std::move :
+	template<class T>
+	void swap(T & a, T & b) {
+		T tmp(std::move(a));
+		a = std::move(b);
+		b = std::move(tmp);
+	}
+
+If in the move constructor of a derived class you want to use the move constructor of the base class, you have to use std::move, e.g.
+	Derived(Derived && rhs) : Base(std::move(rhs))
+This is because rhs is an lvalue (since it has a name), then Base(rhs) would call the copy constructor of the base class
+
+All std containers support move semantic (since C++11) and all std algorithms have been rewritten so that if the contained type implements move semantic the creation of unnecessary temporaries can be avoided.
+For instance, std::swap() does exactly what shown in a previous note and std:: sort() (which does a lot of swaps) will now be much more efficient on big objects.
+
+Note on move semantic: Do implement move semantic on class of large size. You just have to add the move constructor and the move assignment operator. Remember that the compiler may give you one automatically (but remember also that sometimes it does not). If the automatic move constructor is what you need and you want to be sure to have it, use the default keyword.

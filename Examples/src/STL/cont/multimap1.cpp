@@ -65,6 +65,6 @@ int main()
     auto f=find_if(dict.begin(),dict.end(),
 		   [&word](pair<string,string>const & i){return i.second==word;});
     if(f != dict.end())cout << "    " << f->first << endl;
-      
+    // Note that as it is implemented, only the first key whose value is "raffiniert" is printed
        
 }

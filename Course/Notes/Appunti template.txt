@@ -1,0 +1,52 @@
+>>> Appunti TEMPLATE 
+
+# SUGGERIMENTO!!! Nel file header, porre prima tutte le dichiarazioni (funzioni, classi, metodi) e alla fine tutte le definizioni
+
+# Function template: in genere non è necessario specificare l'argomento del template nella chiamata alla funzione a meno che ci siano ambiguità
+--> IMPORTANTE! Per i template, non vengono effettuate le conversioni implicite
+--> Per risolvere le ambiguità: esplicito il template (Foo<double>(a,b)) o utilizzo static_cast (scelta migliore)
+
+# Constant template parameters: sono ammessi i seguenti tipi
+	1. integral costants
+	2. enumerations
+	3. pointer to object or to function
+	4. lvalue reference to pointer or to functions
+	5. pointer to member object or to member function
+	6. std::nullptr
+
+# Per function template non esiste partial specialization ma overloading
+
+# Per effettuare full specialization di una template function:
+	template<typename T>
+	void foo(T a){...} 	// template function
+	template<>
+	void foo(double a){...} // full specialization
+
+# Esempio su function overloading:
+	int const & max(int const & a, int const & b){...};
+	template<typename T>
+	T const & max(T const & a, T const & b){...};
+	int main() {
+		Max(2,3); 	--> chiama max
+		Max<>(2,3); 	--> chiama max<int>
+
+# Default template argument: 
+--> per le funzioni, solo C++11, in C++98 non sono concessi
+--> per le classi, sono ammessi sia in C++98 che C++11
+
+# Le funzioni template vanno poste nel file hpp (sia dichiarazione che definizione), le funzioni template full specialized possono essere poste nel file cpp (la definizione)
+
+# Esempi di specializzazioni di classi: vedi Lecture10_Templates, slide 42
+
+# Quando eseguo la specializzazione (partial o full) di una classe, la classe primaria (non specializzata) deve essere visibile: non è necessario siano poste nello stesso file hpp, se non lo facessi però nel file hpp in cui metto la specializzata devo inserire una forward declaration della classe primaria
+
+# Quando creo una classe specializzata (partial o full) devo ridefinire tutti i metodi (anche se fanno la stessa cosa di prima), non è sufficiente ridichiararli
+
+# Nella specializzazione di una funzione template, se il template non compare nella lista degli argomenti, devo specificare il tipo tra <> subito dopo il nome della funzione
+	Es: template<typename T>
+	    bool myfun(){// Qui uso T }
+	    template<>
+	    bool myfun<int>(){...}
+
+# Quando si utilizza in un typedef (using) o come argomento di un template un tipo definito (tramite typedef (using)) in una classe, è necessario utilizzare la keyword "typename"
+	Es: typedef typename MyClass::nome_typedef_old nome_typedef_new

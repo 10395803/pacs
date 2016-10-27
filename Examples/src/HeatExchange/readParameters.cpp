@@ -1,7 +1,7 @@
 #include "GetPot.hpp"
 #include "readParameters.hpp"
 #include <fstream>
-parameters readParameters(std::string const & filename,bool verbose)
+parameters readParameters(std::string const & filename, bool verbose)
 {
   // Parameter default constructor fills it with the defaults values
   parameters defaults;
@@ -9,9 +9,10 @@ parameters readParameters(std::string const & filename,bool verbose)
   std::ifstream check(filename); 
   if(!check)
     {
-      std::cerr<<"ERROR: Parameter file "<<filename<<" does not exist"<<std::endl;
-      std::cerr<<"Reverting to default values."<<std::endl;
-      if(verbose) std::cout<<defaults;
+      std::cerr << "ERROR: Parameter file " << filename << " does not exist" <<std::endl;
+      std::cerr << "Reverting to default values." << std::endl;
+      if(verbose) 
+      	std::cout << defaults;
       check.close();
       return defaults;
     }
@@ -20,7 +21,7 @@ parameters readParameters(std::string const & filename,bool verbose)
 
   GetPot ifile(filename.c_str());
   parameters values;
-  // Read parameters from getpot ddata base
+  // Read parameters from getpot data base
   values.itermax=ifile("itermax",defaults.itermax);
   values.toler=ifile("toler",defaults.toler);
   values.L=ifile("L",defaults.L);
@@ -31,12 +32,14 @@ parameters readParameters(std::string const & filename,bool verbose)
   values.k=ifile("k",defaults.k);
   values.hc=ifile("hc",defaults.hc);
   values.M=ifile("M",defaults.M);
+  values.om = ifile("out", defaults.om)
+  values.file = ifile("file", defaults.file);
   if(verbose)
     {
-      std::cout<<"PARAMETER VALUES IN GETPOT FILE"<<"\n";
+      std::cout << "PARAMETER VALUES IN GETPOT FILE" << std::endl;
       ifile.print();
-      std::cout<<std::endl;
-      std::cout<<"ACTUAL VALUES"<<"\n"<<values;
+      std::cout << std::endl;
+      std::cout << "ACTUAL VALUES" << std::endl << values;
     }
   return values;
 }

@@ -42,7 +42,7 @@ namespace LinearAlgebra{
     /*!
      * We store data in pointer to double.
      * This is not the best choiche since the class has to handle 
-     * contstrunction and destruction of data
+     * construnction and destruction of data
      */
     double * data;
     //! Policy cannot be changed, but it may be queried

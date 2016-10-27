@@ -28,7 +28,7 @@ void evaluatePoly(std::vector<double> const & points,
     result.push_back(method(a,*i));
   // C++11
   /*
-  for(auto i : points)points.push_back(method(a,i));
+  for(auto i : points) result.push_back(method(a,i));
   */
 
   return;

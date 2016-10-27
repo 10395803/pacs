@@ -1,0 +1,302 @@
+>>> Appunti C++ 
+
+# I template vanno dichiarati e definiti nello stesso header file!!!
+
+# __cplusplus: variabile per il precompiler che contiene la versione del compiler utilizzato
+
+# Gli header file predefiniti (es: quelli della std library) non hanno estensione, quelli user-defined hanno estensione .h o .hpp
+# Alcuni C header file sono ereditati da C++
+	in C: name.h --> in C++: cname
+
+# operator<<: dobbiamo passargli come parametri sia ostream che la classe (solo ostream non basta), può ritornare ostream oppure essere void
+
+# Per chiamare il default costructor di un tipo predefinito: tipo()
+	ES: std::pair<int,int> p(int(),int());
+
+# Inizializzare un array con il default constructor della classe immagazzinata: std::array<Class,N> a{};
+
+# La dimensione di un array deve essere nota al compile time (non può dunque essere una variabile)
+Es: 	int n=2;
+	std::array<int,n> a; --> KO
+Es:	std::array<int,2> a; --> OK
+
+# Il metodo get di tuple richiede un indice noto al compile time
+Es:	int n=0;
+	std::get<n>(nome_tuple) --> KO
+Es:	std::get<0>(nome_tuple) --> OK
+
+# Name mangling: in C++, a dispetto di quello che accade in C, l'identificatore (ossia il simbolo relativo nel file oggetto) di una funzione non coincide con il suo nome ma con la sua signature, ossia nome + parametri in ingresso
+--> Il nome della funzione cioè viene modificato (to mangle = storpiare) in modo da tenere conto anche degli input (questo escamotage consente di realizzare function overloading)
+--> Se vogliamo che una funzione sia identificata solo dal suo nome, come accadeva in C: sia la dichiarazione che l'implementazione devono essere racchiuse in
+	extern "C" { // codice }
+
+# Per cercare il massimo (minimo) elemento in un container: max_element (min_element) --> ritorna un iterator
+Es:	int max = *std::max_element(first_it, last_it+1);
+
+# Per eseguire la somma degli elementi di un container: std::accumulate
+Es:	int sum = std::accumulate(first_it, last_it+1, valore_iniziale);
+
+# exit(): per utilizzarlo, #include <cstdlib>
+
+# Variabili globali: definite all'esterno di qualsiasi funzione
+# static int a = 1; --> a ha uno scope coincidente con il file in cui è presente --> non è visibile all'infuori del file
+# extern int a = 1; --> a ha uno scope globale --> può essere vista da tutti i file che vengono linkati con il file in cui è definita --> in ogni file in cui voglio usarla: extern int a; (dichiarata più volte ma definita una sola volta) 
+# int a = 1; --> di default è extern
+
+# File .hpp: 	#ifndef HH_nomefile_HPP
+		#define HH_nomefile_HPP
+		// contenuto
+		#endif
+
+# Nel ciclo for: è indifferente porre ++i o i++
+
+# In C++11: posso inizializzare un oggetto tramite {}
+Es: int k{0}; <--> int k={0}; <--> int k(0); <--> int k=0;
+Es: std::vector<double> v{1.,2.,3.} <--> std::vector<double> v={1.,2.,3.}
+Es: double c[]={0.,1.,2.};
+Es: se avessi una struct S con due attributi double
+    S mystruct = {0.,1.};
+
+# Per convertire una variabile: usare static_cast
+Es:	int a = 1;
+	auto b = static_cast<double>(a);
+# Un null ptr viene convertito in "false", in caso contrario in "true"
+# Un valore non nullo viene convertito in "true"
+
+# typedef vecchio_nome nuovo_nome <--> using nuovo_nome=vecchio_nome
+# typedef double myvect[20]: myvect v <--> double v[20];
+
+# sizeof(nome_var) --> restituisce la dimensione
+# decltype(nome_var) --> restituisce il tipo
+
+# Inizializzare un array standard "pensato come matrice":
+	int p[2][3]={{1,2,3},{4,5,6}};
+--> gli array rimangono comunque delle strutture lineari
+--> se una funzione riceve in ingresso un array standard: si posso omettere tutte le dimensioni tranne l'ultima
+
+# Puntatori: int * p(0); --> puntatore ad un int = 0
+	     int * p[15]; --> array di 15 puntatori ad int
+	     int (*v)[3]; --> puntatore ad un array di int --> 				     possiamo creare così un array multidimensionale, in cui 			     una dimensione (3) è fissata, cioè:
+	     int ((*v)[3])[10] <--> std::vector<std::array<int,3>> v(10)
+	     output (*nome_ptr)(input) --> puntatore ad una 						   		   funzione
+
+# new:	T* new T --> creiamo un oggetto
+	T* new T(parametri) --> creiamo e inizializziamo un oggetto
+	T* new T[n] --> creiamo un array di n elementi di tipo T
+
+# vector<float> a; --> size = capacity = 0;
+# vector<float> a(10); --> size = 10, capacity >= 10, usiamo il default constructor della classe float (float()) per inizializzare gli elementi
+# vector<float> a(10,3.14); --> size = 10, capacity >= 10, usiamo il copy constructor della classe float per inizializzare tutti gli elementi a 3.14
+# vector<int> a{10,20}; --> creiamo un vettore di due elementi, 10 e 20
+# vector<int> a(10,20); --> creiamo un vettore di 10 elementi inizializzati a 20
+
+# Per inserire elementi alla fine di un vector:
+# v.push_back(), v.push_back(value) --> non posso usarli se non ho default/copy constructor
+# v.emplace_back(), v.emplace_back(parametri_constructor) --> posso usarli anche se non ho default/copy constructor
+# Nota: questi due comandi potrebbero portare ad una riallocazione della memoria (nel caso in cui size+1>capacity), invalidando puntatori e iterator
+
+# Per accedere agli elementi di un vector:
+# []
+# at(posizione) --> lancia un exception se posizione non rientra nel range [0,size) --> dispendioso, usarlo solo nel debugging
+
+# v.size(): restituisce size
+# vector<T>::size_type: restituisce il tipo necessario dell'indice per accedere agli elementi --> di solito è uguale a vector<T>::size_t
+
+# vector<int> v; v.reserve(n); --> fissa la capacità a n, v però è ancora vuoto --> dovrò usare push_back per inserire i valori
+# vector<int> v; v.resize(n); --> fissa la size a n e utilizza il default constructor per inizializzare gli elementi --> dovrò usare [] per inserire gli elementi
+# v.resize(n,value); --> modifica size ed inizializza tutti i nuovi eventuali elementi con value (copy constructor)
+
+# Nota su resize: se la nuova dimensione è superiore a quella vecchia, i vecchi elementi rimangono inalterati, quelli nuovi vengono inizializzati con default/copy constructor
+Se la nuova dimensione è inferiore a quella vecchia: cambia la size ma i valori rimangono inalterati --> il secondo argomento di resize è ininfluente
+
+# a.swap(b): a e b (containers) si scambiano i contenuti --> ora a contiene quello che era contenuto in b e viceversa
+
+# a.shrink_to_fit(): ora la capacità è pari alla dimensione
+
+# Per gli iterator dei container della std library: 
+	std::nome_container<template>::iterator --> begin, end
+	std::nome_container<template>::const_iterator --> cbegin, cend
+# Reverse iterator: rbegin, crbegin, rend, crend --> quando li aumento, in realtà tornano indietro!
+# Nota: gli iterator funzionano per tutti i container, [] funzionano solo su vector e array
+# Nota: un costant vector può essere scorso solo utilizzando un const_iterator
+
+# Se dobbiamo scorrere tutti gli elementi di un container v:
+	for (auto & i : v) --> & è necessaria solo se vogliamo modificare gli elementi di v
+	for (auto i : v) <--> for (auto const & i : v)
+
+# v.data() (C++11) <--> &v[0] (C++98): se v è un vector, restituisce un puntatore all'array utilizzato internamente dalla classe vector per immagazzinare i dati --> è utile se abbiamo una funzione in C che richiede in ingresso un array dinamico e noi abbiamo invece utilizzato un vector
+
+# std::vector<T> v; v.push_front(T const &); --> aggiunge un elemento all'inizio di v
+
+# v.clear(): cancella tutti gli elementi --> ora il container ha size=0
+
+# vector<T>::value_type: tipo immagazzinato dal container --> utile se si utilizzano template
+# vector<T>::pointer, vector<T>::const_pointer, vector<T>::reference, vector<T>::const_reference --> puntatori e refence agli elementi immagazzinati
+
+# Per inizializzare un array:
+# std::array<double,3> a; --> array di 3 double, NON utilizza il default constructor
+# std::array<double,3> a({}); --> array di 3 double, utilizza il default constructor
+# std::array<double,3> a(4); --> array di 3 double inizializzati a 4
+# std::array<double,3> a{2,4,6}; --> array di 3 double inizializzati con 2,4,6
+--> per altre info: Examples/src/Array/main_array.cpp
+
+# size() valuta la dimensione di un array al runtime
+# Per conoscere la dimensione di un array al compile time --> questione di efficienza:
+	std::tuple_size<tipo_array>::value
+
+# Per smart pointers: #include <memory>
+
+# std::unique_ptr<int> a; --> creiamo un unique_ptr che punta a nullptr
+# std::unique_ptr<int> a = new int; KO --> possiamo inizializzare un unique ptr solo utilizzando il constructor
+# std::unique_ptr<int> a(new int); OK
+# In C++14 esiste make_unique (NON c'è in C++11): 
+	Es: auto p = std::make_unique<int>(3);
+
+# b = std::move(c): se b e c sono unique ptr, ora b punta a ciò che prima era puntato da c, ciò che era puntato da b viene cancellato, c è vuoto
+# std::swap(b,c): b e c si scambiano le destinazioni (= oggetti puntati)
+# uptr.reset(): la risorsa puntata viene cancellata, uptr è ora vuoto
+# uptr.reset(uptr2) <--> uptr=std::move(uptr2);
+# uptr.release(): ritorna una standard pointer alla risorsa ora "liberata" (non cancellata), uptr è vuoto
+
+# Nota su unique ptr: possiamo creare container di unique ptr
+
+# Unique ptr e array:
+	std::unique_ptr<string> p(new string[10]); KO
+	std::unique_ptr<string[]> p(new string[10]); OK
+
+# vector<int> i ={1,2,3,4,5};
+  vector<int> j;
+  transform (i.cbegin(), i.cend(), back_inserter(j), negate<int>());
+# back_inserter: functor equivalente a push_back
+# negate: functor che restituisce l'opposto di un numero
+
+# Esempio di una lambda function:
+	auto f = [](double x){return 3*x;} 
+--> non devo specificare il tipo restituito, il compiler lo deduce da sè tramite decltype(3*x)
+
+# Definizione di una lambda function
+	[capture specification](arguments){code}
+	[capture specification](arguments)-->return_type{code}
+--> la seconda sintassi è necessaria quando il tipo da restituire non può essere dedotto in automatico
+--> se utilizziamo una lambda in un algorithm: arguments = valore puntato dell'iterator utilizzato per scorrere il container
+
+# Capture specification: permette di utilizzare all'interno della lambda variabili definite all'interno dello scope in cui si trova la funzione
+Es: [] = non cattura nulla, [&] = cattura by reference, [=] = cattura by value, [=,&foo] = cattura foo by reference, le altre by value, [bar] = cattura solo bar e lo fa by value, [this] = cattura il puntatore alla classe in cui ci troviamo
+
+# Come utilizzare bind:
+double fun(double a, double b){return a*b;}
+auto f=bind(fun,3.0,std::placeholders::_1); 
+cout<<f(4); --> in questo modo è come se chiamassimo f(3.0,4)
+--> bind consente di "fissare" alcuni argomenti di una funzione/functor/lambda e creare così una nuova funzione/functor/lambda
+--> std::placeholders sono gli argomenti che non fissiamo ora ma che passeremo di volta in volta
+
+# Per creare un container di funzioni: utilizziamo std::function<>
+# std::function<tipo_restituito(tipo_parametri)
+Es:	int fun(int,int);
+	vector<std::function<int(int,int)>> tasks;
+	tasks.push_back(fun);
+	tasks.push_back([](int x, int y){return x*y;});
+	for (auto i : tasks) cout << i(3,4) << endl;
+--> Creiamo un vector di due elementi che sono funzioni riceventi due int e restituenti un int (una funzione predefinita e una lambda), il ciclo for stampa a video i risultati delle chiamate alle due funzioni
+
+# std::cout.setf(std::ios::scientific): per settare la notazione scientifica
+
+# E' possibile chiamare un costruttore (per es: default) all'interno di un altro costruttore
+Es (tratto da Examples/src/muParserInterface):
+	muParserInterface() { ... };
+	muParserInterface(const std::string & e) : muParserInterface() { ... }
+
+# assert(espressione): valuta l'espressione, se è falsa restituisce un errore
+
+# Inheritance + template: se nella classe figlio chiamiamo un attributo (protected) o un metodo della classe padre, dobbiamo usare il full qualifier
+Es: ParentClass<T>::attribute, ParentClass<T>::method
+--> Questo non è necessario se si utilizza inheritance senza template
+
+# Per il makefile: nelle dipendenze dell'eseguibile, inserire solamente i file oggetto, non è necessario inserire anche gli headers
+
+# Puntatore ad una funzione: 
+	Return_Type (* pointer_name)(Argument_List)
+# Puntatore ad un metodo di una classe:
+	Return_Type (Class_Name::* pointer_name)(Argument_List)
+# Per inizializzare un puntatore ad una funzione:
+	pointer_name = &function_name
+# Per dichiarare un nuovo tipo che in realtà è un puntatore ad una funzione/metodo:
+	typedef Return_Type (* new_type_name)(Argument_List)
+	typedef Return_Type (Class_Name::* new_type_name)(Argument_List)
+
+# Come dichiarare enum:
+	enum (class) nome_enum{enum1, enum2, ...}
+# Come utilizzare enum:
+	switch(nome_enum){
+	case enum1: ... break;
+	case enum2: ... break;
+	... }
+# enum è integer type, perciò se dichiarassimo un attributo enum come static const, postremmo inizializzarlo all'interno della classe
+
+# Destructor: nel caso utilizzassi inheritance, nella classe padre il destructor deve essere virtual
+
+# Per disattivare inline in fase di debug:
+	#ifndef NDEBUG 
+	#define INLINE
+	#else
+	#define INLINE inline
+	#endif
+	// ...
+	INLINE double fun();
+Nota: NDEBUG va (eventualmente) dichiarata durante la compilazione
+	-DNDEBUG
+
+# Static member (method): è un attributo (metodo) condiviso da tutti gli oggetti di una classe --> Non necessita di un oggetto per essere chiamato
+# Per accedere ad un attributo static: nome_classe::nome_attributo
+# Solo gli attributi static const int possono essere inizializzati nella classe, tutti gli altri (o perchè non const, o perchè non int) devono essere inizializzati al di fuori, anche nel file cpp
+	Es: tipo nome_classe::nome_attributo(valore);
+# Per static method, non appartenendo a nessun oggetto, non possiamo utilizzare la keyword const nè il puntatore this
+# Quando definiamo un metodo static (nel file cpp): la keyword static non è più necessaria, la sintassi è identica a quella dei metodi usuali (non static)
+# All'interno della classe: non è necessario indicare il namespace per riferirsi agli attributi static
+# Un metodo static (non essendo legato ad un'istanza particolare della classe) può avere accesso solo agli attributi static 
+
+# std::numeric_limits<double>::quiet_NaN() 
+--> Restituisce not a number senza lanciare un exception floating point
+--> Si trova nella libreria <limits>
+
+# Unique ptr: auto p = make_unique<tipo>(oggetto);
+	      auto p = unique_ptr<tipo>(new tipo(oggetto));
+--> Nota: il tipo deve essere copy constructable 
+
+# Come possiamo inizializzare un int:
+	int x(10); --> int x(2.5); OK <==> int x=2; 
+		   --> Non può essere utilizzato per inizializzare un 		                       attributo all'interno di una classe
+	int y=10;  --> Può essere utilizzato per inizializzare un 		                       attributo all'interno di una classe
+	int z{10}; --> int z{2.5}; KO
+                   --> Può essere utilizzato per inizializzare un 		                       attributo all'interno di una classe
+	int k={10};
+
+# Se vogliamo instanziare un oggetto utilizzando il default constructor:
+	Foo a; 	 OK
+	Foo a{}; OK
+	Foo a(); KO --> Viene interpretato come la dichiarazione di una 			        funzione
+
+# std::toupper(char): trasforma un char in maiuscolo (nel caso in cui non lo sia)
+
+# Se utiliziamo una versione di gcc precedente alla 4.7, utilizzare:
+	-std=c++0x
+
+# I metodi "virtual" devono essere dichiarati nuovamente nella classe figlia nel caso in cui li si voglia sovrascrivere
+
+# Metodo inline: il compiler copia l'implementazione del metodo ogni volta che questo viene chiamato, così si evita di dover caricare il metodo nella memoria ogni volta (si riducono gli overhead)
+# Si velocizza l'esecuzione, ma se il metodo è troppo grande, il compiler si "rifiuta" di inline
+# Possiamo anche non mettere la keyword "inline" nella dichiarazione del metodo, l'importante è che sia presente nella definizione
+
+# I valori di default dei parametri dei metodi possono essere indicati o nella dichiarazione o nella definizione ma NON in entrambe
+
+# Classe template: all'interno della classe, non è necessario specificare l'argomento del template
+
+# Inheritance: nel copy constructor della classe figlia, posso chiamare il copy constructor del padre passandogli come argomento l'oggetto della classe figlia
+	derived_class(const derived_class & D) : main_class(D) {...}
+--> così nel corpo del metodo devo lavorare solo sugli eventuali attributi presenti nella figlia ma non nel padre
+
+# La keyword "auto" non cattura nè le reference nè i "const":
+	double const & Get() const {return a;}
+	// ...
+	double const & b = class.Get(); // b è double const &
+	auto c = class.Get();		// c è double

@@ -6,7 +6,7 @@
 namespace LinearAlgebra {
   
   MyMat0::MyMat0(size_type n, size_type m, StoragePolicySwitch sPolicy):
-    nr(n), nc(m), data(0),myPolicy(sPolicy)
+    nr(n), nc(m), data(0), myPolicy(sPolicy)
   {
     switch (this->myPolicy)
       {
@@ -23,7 +23,7 @@ namespace LinearAlgebra {
   }
   
   MyMat0::MyMat0(MyMat0 const & mat):
-    nr(mat.nr), nc(mat.nc),myPolicy(mat.myPolicy)
+    nr(mat.nr), nc(mat.nc), myPolicy(mat.myPolicy)
   {
     // release old data
     delete[] data;
@@ -67,7 +67,7 @@ namespace LinearAlgebra {
   double  MyMat0::getValue(size_type const i, size_type const j) const
   {
     // todo : this test should be hidden in a private method
-    if  (i<0 || i>=nr || j<0 || i<=nc)
+    if  (i<0 || i>=nr || j<0 || j>=nc)
       {
 	// todo this way of handling errors could be bettered
 	// using exceptions
@@ -80,7 +80,7 @@ namespace LinearAlgebra {
   
   void  MyMat0::setValue(size_type const i, size_type const j, double const & v)
   {
-    if  (i<0 || i>=nr || j<0 || i<=nc)
+    if  (i<0 || i>=nr || j<0 || j>=nc)
       {
 	std::cerr<<" Out of bounds";
 	std::exit(1);

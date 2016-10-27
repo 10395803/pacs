@@ -20,3 +20,10 @@ k=0.164
 hc=200.0e-6
 # Number of elements
 M=101
+# Where to print the results
+#	FILE: write to file
+#	SCREEN: print on screen
+#	BOTH: write to file and print to screen
+out=BOTH
+# Output file name
+file="output.dat"

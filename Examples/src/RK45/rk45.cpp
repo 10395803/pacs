@@ -73,12 +73,12 @@ namespace ODE
 	 std::size_t const & maxSteps)
   {
     status=0;
-    const std::size_t maxReduction=maxSteps;
+    const std::size_t maxReduction=static_cast<std::size_t>(maxSteps/10.);
     // parameters for decreasing/increasing time step
-    double const c1=1.0;
+    double const c1=50.;
     // I need to have a sufficient decrease of the local error
     // to allow time step coarsening
-    double const c2=1./64.;
+    double const c2=1./5.;
 
     double length=T-t0;
     //! Make sure that h allows to reach T
@@ -87,7 +87,7 @@ namespace ODE
     // To avoid underflow we need in any case to limit the time step to a positive number
     // Here I allow h to become 128 time smaller than that giving the maximal number of steps
     double h_min = length/(128*maxSteps);
-    // SOme counters
+    // Some counters
     std::size_t count(0);
     std::size_t stepsCounter(0);
     // Initial data
@@ -96,7 +96,8 @@ namespace ODE
     double errorPerTimeStep=final_error/initialNSteps;
     if (initialNSteps>=maxSteps) throw std::runtime_error("RK45: initial time step h too small!");
     std::vector<std::pair<double,double>> solution;
-    solution.emplace_back(std::make_pair(t0,y0));
+    //solution.emplace_back(std::make_pair(t0,y0));
+    solution.emplace_back(t0,y0);
     double localError;
     double newy;
     while (time<T && stepsCounter <maxSteps)
@@ -115,7 +116,10 @@ namespace ODE
 		++count;
 		newy = rk45_step(dy,y,time,h,localError);
 	      }
-	    else status=3;
+	    else {
+	    	status=3;
+	    	break;
+	    }
 	  }
 	if (count>=maxReduction)status=1;
 	count=0;
@@ -123,7 +127,8 @@ namespace ODE
 	y = newy;
 	time +=h;
 	++stepsCounter;
-	solution.emplace_back(std::make_pair(time,y));
+	//solution.emplace_back(std::make_pair(time,y));
+	solution.emplace_back(time,y);
 	//! check if we reached end
 	if(localError<c2*errorPerTimeStep && h<h_max)
 	  {

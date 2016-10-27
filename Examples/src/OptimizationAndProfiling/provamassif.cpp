@@ -19,7 +19,7 @@ int main()
 
   cout <<"clearing all"<<endl;
   a.clear();
-  vector<double>().swap(a);
+  vector<double>().swap(a); // In C++11: use shrink_to_fit()
   cout<<" Creating 50000 ints:"<<50*sizeof(int)<<" Kbytes"<<endl;
   b.resize(50000);
   cout<<" Allocating other 10000 doubles: 80KBytes"<<endl;

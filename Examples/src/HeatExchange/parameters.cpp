@@ -1,17 +1,22 @@
 #include <iostream>
 #include "parameters.hpp"
+
 std::ostream & operator << (std::ostream & out,const parameters & p)
 {
-  out<<"PARAMETER VALUES:"<<"\n";
-  out<<"itermax= "<<p.itermax<<"\n";
-  out<<"toler= "<<p.toler<<"\n";
-  out<<"L= "<<p.L<<"\n";
-  out<<"a1= "<<p.a1<<"\n";
-  out<<"a2= "<<p.a2<<"\n";
-  out<<"To= "<<p.To<<"\n";
-  out<<"Te= "<<p.Te<<"\n";
-  out<<"k= "<<p.k<<"\n";
-  out<<"hc= "<<p.hc<<"\n";
-  out<<"M= "<<p.M<<"\n\n";
+  out << "PARAMETER VALUES:" << std::endl;
+  out << "itermax= " 	<< p.itermax 	<< std::endl;
+  out << "toler= " 		<< p.toler 		<< std::endl;
+  out << "L= " 			<< p.L 			<< std::endl;
+  out << "a1= " 		<< p.a1 		<< std::endl;
+  out << "a2= " 		<< p.a2 		<< std::endl;
+  out << "To= "			<< p.To			<< std::endl;
+  out << "Te= "			<< p.Te			<< std::endl;
+  out << "k= " 			<< p.k			<< std::endl;
+  out << "hc= "			<< p.hc			<< std::endl;
+  out << "M= " 			<< p.M			<< std::endl;
+  out << "Output="		<< p.om			<< std::endl;
+  if (p.om == outMode::FILE || p.om == outMode::BOTH)
+  	out << "file=" 		<< p.file		<< std::endl;
+  out << std::endl;
   return out;
 }

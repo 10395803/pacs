@@ -1,7 +1,7 @@
 #ifndef HH_GLOBALS_HH
 #define HH_GLOBALS_HH
 //! \file globals.hpp Defines use of globals with external linkage
-//! A global varibale with extenral linkage. Only declarated!
+//! A global variable with extenral linkage. Only declarated!
 /*!
   Must be defined elsewhere.
  */

@@ -161,7 +161,7 @@ namespace Geometry{
     // We may use assert, in this case we would disable the control
     // in the released version (-DNDEBUG). We prefer here to exit the program
     if(this->size() != 3){
-      std::cerr<<" A trianlge must be created giving three vertices"<<std::endl;
+      std::cerr<<" A triangle must be created giving three vertices"<<std::endl;
       std::exit(1);
     }
   }

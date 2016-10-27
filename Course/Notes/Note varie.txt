@@ -1,0 +1,92 @@
+>>> Note varie PACS
+
+# Editor di testo: è un programma per la composizione di testi
+
+# Codice sorgente: è il testo di un algoritmo scritto in un linguaggio di programmazione, è il punto di partenza (per questo "sorgente") per costruire un eseguibile
+
+# Codice oggetto: è la traduzione del codice sorgente in linguaggio macchina (binario), viene creato dal compilatore
+
+# Passi della compilazione:
+	1. Preprocessing: 	
+		- rimozione dei commenti
+		- interpretazione delle righe che iniziano con "#" (Es: 		  include)
+	2. Compilation:
+		- il compilatore traduce il codice sorgente in codice 		  oggetto
+	3. Linking:
+		- combinazione delle funzioni definite in altri file 		  sorgenti o definite in librerie con la funzione main() 		  per creare il file eseguibile --> ogni compilation unit 		  (vedi dopo) viene compilata separatamente, quindi poi ho 		  bisogno di qualcuno che metta insieme tutti i pezzi
+
+# Esecuzione da linea di comando: 
+	g++ -c pippo.cpp --> creiamo un file oggetto pippo.o, non chiamiamo il linker
+	g++ -o prova pippo.o --> effettuiamo il link a partire dal file oggetto costruito in precedenza ed otteniamo un eseguibile di nome "prova"
+
+# IDE (Integrated Development Environment): è un software che aiuta il programmatore nello sviluppo del codice sorgente segnalando errori di sintassi e supportando sviluppo e debugging 
+
+# Linguaggio compilato (imperativo): scrivo il codice in un editor o IDE, il codice viene compilato dal compiler e successivamente eseguito dal processore
+
+# Linguaggio interpretato: il codice sorgente viene interpretato immediatamente da un interprete e vengono eseguite le istruzioni così come descritte nel file sorgente. NON vi è la compilazione, quindi la creazione del codice oggetto 
+
+# Interprete: programma in grado di eseguire altri programmi a partire direttamente dal loro codice sorgente
+--> svolge il lavoro che in un linguaggio compilato è eseguito da compiler+processor
+
+# NOTA: per un qualunque linguaggio di programmazione è possibile costruire un compilatore e un interprete, dunque un linguaggio può essere sia interpretato che compilato, dipende dall'implementazione (non è una proprietà propria del linguaggio)
+
+# Core: unità singola di elaborazione
+# Processore: chip composto da uno o più core, una o più memorie RAM, ecc.
+# Nodo: scheda che ospita uno o più processori, moduli di memoria, ecc. La RAM è condivisa tra tutti i processori
+# Cluster: insieme di nodi omogenei interconnessi fra loro da una rete
+
+# Architettura a 64 bit: architettura in cui il formato standard di una variabile semplice (per es: puntatore) è di 64 bit di lunghezza
+
+# Host (nodo ospite): terminale collegato, tramite un link di comunicazione, ad una rete informatica (es: internet)
+
+# Server: componente informatico di elaborazione che fornisce un qualunque tipo di servizio ad altre componenti (chiamate client) che ne fanno richiesta attraverso una rete di computer --> rappresenta quindi un nodo terminale della rete opposto all'host client
+
+# Modalità di utilizzo di un server:
+1. Sequenziale: una sequenza di istruzioni e un flusso di dati --> processo unico (single core)
+2. SIMD (Single Input Multiple Data): una sequenza di istruzioni e diversi flussi di dati --> molti processi (es: OpenMP)
+3. MIMD (Multiple Input Multiple Data): diverse sequenze di istruzioni e diversi flussi di dati --> molti processi (es: MPI)
+
+# OS multiutente: sistema operativo che permette l'accesso al pc da parte di diversi utenti
+
+# OS multitasking: sistema operativo in grado di gestire molti processi concorrenti su un unico processore (o core)
+ATTENZIONE: per quanto possibile, mai più di un processo "pesante" per core (si rallenterebbero a vicenda)
+
+# Kernel: cuore del OS, consente di mettere in comunicazione OS con hardware
+
+# Shell: è un programma command interpreter che consente di mettere in comunicazione l'utente con OS, con le applicazioni e con il kernel. Consente di impartire istruzioni e avviare comandi. E' la parte visibile del OS quindi può essere pensata come interfaccia utente. Esempio: terminale
+
+# sh (= Bourne Shell): è la shell di default per Unix
+# bash (= Bourne Again Shell): è la shell di GNU
+
+# OS: è composto dal kernel e molte piccole utility (sono eseguibili) 
+--> I comandi (predefiniti) che digitiamo da linea di comando sono in realtà degli eseguibili 
+
+# Shebang: #!
+
+# Portabilità: possibilità di utilizzare un software, codice ecc. su diversi ambienti
+
+# Compilation unit: source file + header files inclusi --> ogni compilation unit è trattata separatamente durante la compilazione
+
+# Namespace (spazio dei nomi): collezione di nomi di entità usate in uno o più file sorgente. Lo scopo dei namespace è quello di evitare confusione ed equivoci nel caso siano necessarie molte entità con nomi simili, fornendo il modo di raggruppare i nomi per categorie --> è come se fosse il "cognome" di una famiglia di variabili, metodi ecc accumunati da qualche caratteristica (Es: std)
+
+# main() program: è il punto di entrata per un eseguibile, per questo deve esserci uno e un solo main nei codici sorgente
+
+# main > a.txt: stdout su file, stderr su terminale
+# main < b.txt: leggiamo i dati da file, non da terminale
+# main 2> error.txt: stdout su terminale, stderr su file
+# main > a.txt 2>&1: stdout e stderr su file
+
+# Quando chiamiamo il linker: dopo "-o" ci va subito il nome dell'eseguibile, se no dà errore 
+
+# File .sh: è uno script per la shell (bash)
+
+# Aliasing: posso passare una stessa variabile a due distinti parametri di una funzione
+Es: void fun(T const & a, T const & b, T & c);
+	...
+    fun(A,B,A);
+
+# Demangling file oggetto: T = funzione definita (in quel file oggetto), U = funzione non definita (in quel file oggetto)
+
+# Cross-compiler: compilatore in grado di compilare codice anche per altre architetture oltre a quella su cui viene poi girato
+
+# Functor o function object: classe che sovrascrive call operator

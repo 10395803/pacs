@@ -1,0 +1,116 @@
+>>> factory.hpp
+
+#ifndef HH_FACTORY_HH
+#define HH_FACTORY_HH
+
+// Dichiarazione
+
+template
+<
+	typename AbstractProduct,
+	typename Identifier,
+	typename Builder
+	= std::function<std::unique_ptr<AbstractProduct()>> 
+>
+class Factory
+{
+private:
+	using Container_type = std::map<Identifier,Builder>;
+	Factory() = default;
+	Factory(Factory const &) = delete;
+	Factory & operator=(Factory const &) = delete;
+	Container_type _storage;
+public:
+	static Factory & Instance();
+	void add(Identifier const &, Builder const &);
+	std::unique_ptr<AbstractProduct> create(Identifier const &);
+};
+
+// Implementazioni
+
+//Meyer's trick
+template
+<
+	typename AbstractProduct,
+	typename Identifier,
+	typename Builder
+	= std::function<std::unique_ptr<AbstractProduct()>> 
+>
+Factory<AbstractProduct,Identifier,Builder> & 
+Factory<AbstractProduct,Identifier,Builder>::Instance()
+{
+	static Factory<AbstractProduct,Identifier,Builder> theFactory;
+	return theFactory;
+}
+
+template
+<
+	typename AbstractProduct,
+	typename Identifier,
+	typename Builder
+	= std::function<std::unique_ptr<AbstractProduct()>> 
+>
+void 
+Factory<AbstractProduct,Identifier,Builder>::add
+(Identifier const & name, Builder const & func)
+{
+	auto res = _storage.insert(std::make_pair(name,func));
+	if (res.second == false)
+		throw std::invalid_argument
+			("Double registration in Factory");
+}
+
+template
+<
+	typename AbstractProduct,
+	typename Identifier,
+	typename Builder
+	= std::function<std::unique_ptr<AbstractProduct()>> 
+>
+std::unique_ptr<AbstractProduct> 
+Factory<AbstractProduct,Identifier,Builder>::create
+(Identifier const & name)
+{
+	auto p = _storage.find(name);
+	if (p == _storage.end())
+		return std::unique_ptr<AbstractProduct>();
+	return std::unique_ptr<AbstractProduct>(p->second());
+}
+
+#endif
+
+--------------------------------------------------------------------------
+
+>>> builder.hpp
+
+#ifndef HH_BUILDER_HH
+#define HH_BUILDER_HH
+
+// AbstractClass indica una generica classe astratta, non è un template
+// come in factory.hpp
+// Potrebbe essere un template, quando si chiama la funzione è necessario
+// però esplicitare l'argomento del template per non incorrere in un
+// ambiguous match (il primo template comparirebbe solo nel return type)
+
+template<typename T>
+std::unique_ptr<AbstractClass> builder()
+{
+	return std::unique_ptr<AbstractClass>(new T);
+}
+
+--------------------------------------------------------------------------
+
+>>> registration.cpp
+
+#include "factory.hpp"
+#include "builder.hpp"
+
+// AbstractClass e Identifier non sono template, sono i tipi effettivi
+
+void register()
+{
+	auto factory = Factory<AbstractClass,Identifier>::Instance();
+	factory.add( ... )
+	factory.add( ... )
+	...
+};

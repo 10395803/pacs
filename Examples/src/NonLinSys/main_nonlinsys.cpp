@@ -14,7 +14,7 @@ double f2(NonLinearSystems::argumentType const & x){
   return x[0]+3*x[1];
 }
 
-//! A function that takes an addisional argument
+//! A function that takes an additional argument
 
 double convex(NonLinearSystems::argumentType const & x,double alpha){
   return alpha*x[0]+(1.0-alpha)*x[1];

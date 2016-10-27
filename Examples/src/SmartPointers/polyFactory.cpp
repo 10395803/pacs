@@ -23,7 +23,7 @@ namespace Geometry
   }
   
   std::ostream &  geometryHolder::showMe(std::ostream & out){
-    out<<" Geometry hoder object:"<<endl;
+    out<<" Geometry holder object:"<<endl;
     if (this->my_poly==nullptr)
       cout<<"I am not storing any polygon"<<std::endl;
     else{

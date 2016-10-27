@@ -10,12 +10,12 @@ public:
     This class has NO default constructor
    */
   Edge(const unsigned & a, const unsigned & b):M_pointId{{a,b}}{}
-  //!Estracts the id of the Ith point
+  //!Extracts the id of the Ith point
   unsigned int operator[](unsigned int i)const
   {
     return M_pointId[i];
   }
-  //!Estracts the id of the Ith point, non const version
+  //!Extracts the id of the Ith point, non const version
   unsigned int & operator[](unsigned int i)
   {
     return M_pointId[i];
